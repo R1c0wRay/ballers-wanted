@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ballers Wanted - Full Flow</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+            padding-top: 40px;
+        }
+
+        input,
+        button {
+            padding: 10px;
+            margin: 5px;
+            width: 250px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        button {
+            cursor: pointer;
+            background: #d97706;
+            color: white;
+        }
+
+        button:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+
+        #output {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>1️⃣ Register</h2>
+
+    <input id="pseudo" placeholder="pseudo"><br>
+    <input id="email" placeholder="email"><br>
+    <input id="pictoId" placeholder="pictoId"><br>
+    <button onclick="register()">Register</button>
+
+    <h2>2️⃣ Confirm Email</h2>
+
+    <input id="token" placeholder="confirmation token"><br>
+    <button onclick="confirmEmail()">Confirm</button>
+
+    <h2>3️⃣ OTP</h2>
+
+    <button id="requestBtn" onclick="requestOtp()">Request OTP</button>
+    <div id="countdown"></div>
+
+    <br>
+
+    <input id="code" placeholder="OTP code"><br>
+    <button id="verifyBtn" onclick="verifyOtp()">Verify OTP</button>
+
+    <h3>Output</h3>
+    <div id="output">Waiting...</div>
+
+    <script>
+
+        const API = "http://localhost:3000";
+        const BLOCK_DURATION = 5 * 60 * 1000;
+
+        let token = null;
+
+        function showMessage(text, isError = false) {
+            const el = document.getElementById("output");
+            el.style.color = isError ? "red" : "lightgreen";
+            el.textContent = text;
+        }
+
+        function showJSON(data) {
+            document.getElementById("output").textContent =
+                JSON.stringify(data, null, 2);
+        }
+
+        // ✅ REGISTER
+        async function register() {
+            const pseudo = document.getElementById("pseudo").value;
+            const email = document.getElementById("email").value;
+            const pictoId = document.getElementById("pictoId").value;
+
+            const res = await fetch(API + "/users/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    pseudo,
+                    email,
+                    pictoId,
+                    consentAccepted: true
+                })
+            });
+
+            const data = await res.json();
+
+            console.log("REGISTER:", data);
+
+            if (!res.ok) {
+                showMessage("❌ " + data.message, true);
+                return;
+            }
+
+            // auto inject token
+            document.getElementById("token").value = data.confirmationToken;
+
+            showJSON(data);
+        }
+
+        // ✅ CONFIRM EMAIL
+        async function confirmEmail() {
+            const token = document.getElementById("token").value;
+
+            const res = await fetch(API + "/users/confirm/" + token, {
+                method: "POST"
+            });
+
+            const data = await res.json();
+
+            console.log("CONFIRM:", data);
+
+            if (!res.ok) {
+                showMessage("❌ " + data.message, true);
+                return;
+            }
+
+            showJSON(data);
+        }
+
+        // ✅ REQUEST OTP
+        async function requestOtp() {
+            const email = document.getElementById("email").value;
+
+            const res = await fetch(API + "/users/otp/request", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await res.json();
+
+            console.log("REQUEST OTP:", data);
+
+            if (!res.ok) {
+                handleError(data);
+                return;
+            }
+
+            showMessage("✅ OTP sent !");
+        }
+
+        // ✅ VERIFY OTP
+        async function verifyOtp() {
+            const email = document.getElementById("email").value;
+            const code = document.getElementById("code").value;
+
+            const res = await fetch(API + "/users/otp/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, code })
+            });
+
+            const data = await res.json();
+
+            console.log("VERIFY OTP:", data);
+
+            if (!res.ok) {
+                handleError(data);
+                return;
+            }
+
+            showMessage("✅ Connected !");
+            token = data.accessToken;
+        }
+
+        // ✅ GESTION ERREURS
+        function handleError(data) {
+
+            console.log("ERROR DATA =", data);
+
+            switch (data.errorCode) {
+
+                case "OTP_INVALID":
+                    showMessage("❌ OTP invalide", true);
+                    break;
+
+                case "OTP_MAX_ATTEMPTS":
+                    showMessage("⚠️ Dernier essai avant blocage", true);
+                    break;
+
+                case "OTP_BLOCKED":
+                    showMessage("🚫 OTP bloqué pendant 5 minutes", true);
+
+                    if (!localStorage.getItem("otpBlockedUntil")) {
+                        startBlockTimer();
+                    }
+
+                    disableOtpActions();
+                    break;
+
+                case "OTP_EXPIRED":
+                    showMessage("⏱️ OTP expiré", true);
+                    break;
+
+                default:
+                    showMessage("❌ " + data.message, true);
+            }
+        }
+
+        // ✅ TIMER BLOCK
+        function startBlockTimer() {
+            const blockedUntil = Date.now() + BLOCK_DURATION;
+            localStorage.setItem("otpBlockedUntil", blockedUntil);
+
+            updateBlockUI();
+        }
+
+        function updateBlockUI() {
+
+            const btnRequest = document.getElementById("requestBtn");
+            const btnVerify = document.getElementById("verifyBtn");
+            const countdown = document.getElementById("countdown");
+
+            const blockedUntil = Number(
+                localStorage.getItem("otpBlockedUntil")
+            );
+
+            if (!blockedUntil) {
+                btnRequest.disabled = false;
+                btnVerify.disabled = false;
+                countdown.textContent = "";
+                return;
+            }
+
+            const remaining = blockedUntil - Date.now();
+
+            if (remaining <= 0) {
+                btnRequest.disabled = false;
+                btnVerify.disabled = false;
+
+                countdown.textContent = "";
+
+                localStorage.removeItem("otpBlockedUntil");
+
+                return;
+            }
+
+            // ✅ on bloque les 2 boutons
+            btnRequest.disabled = true;
+            btnVerify.disabled = true;
+
+            const sec = Math.floor(remaining / 1000);
+            const min = Math.floor(sec / 60);
+            const seconds = sec % 60;
+
+            countdown.textContent =
+                `⏳ ${min}:${seconds.toString().padStart(2, "0")}`;
+
+            setTimeout(updateBlockUI, 1000);
+        }
+
+        updateBlockUI();
+
+    </script>
+
+</body>
+
+</html>
