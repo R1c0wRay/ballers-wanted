@@ -70,7 +70,7 @@
     <script>
 
         const API = "http://localhost:3000";
-        const BLOCK_DURATION = 5 * 60 * 1000;
+        const BLOCK_DURATION = 20 * 1000;
 
         let token = null;
 
@@ -156,7 +156,9 @@
                 return;
             }
 
-            showMessage("✅ OTP sent !");
+            document.getElementById("verifyBtn").disabled = false;
+
+            showMessage("✅ OTP envoyé !");
         }
 
         // ✅ VERIFY OTP
@@ -199,7 +201,7 @@
                     break;
 
                 case "OTP_BLOCKED":
-                    showMessage("🚫 OTP bloqué pendant 5 minutes", true);
+                    showMessage("🚫 OTP bloqué pendant 20 secondes", true);
 
                     if (!localStorage.getItem("otpBlockedUntil")) {
                         startBlockTimer();
@@ -245,12 +247,18 @@
             const remaining = blockedUntil - Date.now();
 
             if (remaining <= 0) {
+                document.getElementById("code").value = "";
+
                 btnRequest.disabled = false;
-                btnVerify.disabled = false;
+                btnVerify.disabled = true;
 
                 countdown.textContent = "";
 
                 localStorage.removeItem("otpBlockedUntil");
+
+                showMessage(
+                    "⚠️ Votre OTP a été invalidé. Demandez un nouveau code."
+                );
 
                 return;
             }

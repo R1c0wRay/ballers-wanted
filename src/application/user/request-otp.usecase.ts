@@ -5,7 +5,7 @@ export class RequestOtpUseCase {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly otpRepository: OtpRepository,
-  ) {}
+  ) { }
 
   async execute(input: { email: string }) {
     const user = await this.userRepository.findByEmail(input.email);
@@ -16,7 +16,10 @@ export class RequestOtpUseCase {
       };
     }
 
-    const existingOtp = await this.otpRepository.getActiveByUserId(user.id);
+    const existingOtp =
+      await this.otpRepository.getActiveByUserId(
+        user.id
+      );
 
     if (existingOtp) {
       return {

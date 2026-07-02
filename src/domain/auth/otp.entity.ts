@@ -1,24 +1,72 @@
 import { DomainError } from '../common/domain.error';
 
+export type OtpStatus =
+  | 'active'
+  | 'used'
+  | 'expired'
+  | 'blocked';
+
 export class Otp {
   constructor(
     readonly value: string,
     readonly userId: string,
-    private status: string,
+    private status: OtpStatus,
     private attempts: number,
-  ) { }
+    readonly expiresAt: Date,
+    private blockedUntil?: Date,
+  ) {}
 
-  verify(inputCode: string) {
-    // ✅ si déjà bloqué
+  isActive(): boolean {
+    return this.status === 'active';
+  }
+
+  getStatus(): OtpStatus {
+    return this.status;
+  }
+
+  verify(inputCode: string): void {
+    const now = new Date();
+
+    // OTP bloqué
     if (this.status === 'blocked') {
-      throw new DomainError('OTP_BLOCKED', 'Code blocked');
+      if (this.blockedUntil && now < this.blockedUntil) {
+        throw new DomainError(
+          'OTP_BLOCKED',
+          'OTP blocked'
+        );
+      }
+
+      // Fin du blocage => OTP périmé définitivement
+      this.status = 'expired';
+
+      throw new DomainError(
+        'OTP_EXPIRED',
+        'Blocked OTP expired. Request a new OTP.'
+      );
     }
 
-    // ✅ mauvais code
+    // OTP expiré
+    if (now > this.expiresAt) {
+      this.status = 'expired';
+
+      throw new DomainError(
+        'OTP_EXPIRED',
+        'OTP expired'
+      );
+    }
+
+    // OTP non utilisable
+    if (this.status !== 'active') {
+      throw new DomainError(
+        'OTP_INVALID',
+        'OTP not usable'
+      );
+    }
+
+    // Mauvais code
     if (this.value !== inputCode) {
       this.attempts++;
 
-      // ✅ 3e tentative = warning (DERNIER ESSAI)
       if (this.attempts === 3) {
         throw new DomainError(
           'OTP_MAX_ATTEMPTS',
@@ -26,21 +74,26 @@ export class Otp {
         );
       }
 
-      // ✅ 4e tentative = blocage
       if (this.attempts >= 4) {
         this.status = 'blocked';
 
+        this.blockedUntil = new Date(
+          now.getTime() + 20 * 1000
+        );
+
         throw new DomainError(
           'OTP_BLOCKED',
-          'Too many attempts. Code blocked'
+          'OTP blocked for 20 seconds'
         );
       }
 
-      // ✅ tentative 1 & 2
-      throw new DomainError('OTP_INVALID', 'Invalid OTP');
+      throw new DomainError(
+        'OTP_INVALID',
+        'Invalid OTP'
+      );
     }
 
-    // ✅ succès
+    // Succès
     this.status = 'used';
   }
 }
