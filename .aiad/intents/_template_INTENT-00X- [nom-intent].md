@@ -1,4 +1,4 @@
-## Intent Statement — 00X — titre-court]
+## Intent Statement — 00X — [titre-court]
 
 **Auteur humain :** [Prénom Nom] — [Date]
 
