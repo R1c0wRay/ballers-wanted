@@ -5,6 +5,10 @@ export class UserRepository {
     return this.users.find((u) => u.email === email) || null;
   }
 
+  async findByPseudo(pseudo: string) {
+    return this.users.find((u) => u.pseudo === pseudo) || null;
+  }
+
   async findById(id: string) {
     return this.users.find((u) => u.id === id) || null;
   }

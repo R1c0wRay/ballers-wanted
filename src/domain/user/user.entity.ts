@@ -10,7 +10,7 @@ export class User {
     private consentVersion: string | null,
     private consentAcceptedAt: Date | null,
     readonly createdAt: Date,
-  ) {}
+  ) { }
 
   activate(): void {
     if (this.status !== 'active') {

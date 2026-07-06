@@ -1,9 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { User } from '../../domain/user/user.entity';
 import { UserRules } from '../../domain/user/user.rules';
+import { DomainError } from '../../domain/common/domain.error';
 
 export class CreateUserUseCase {
-  constructor(private readonly userRepository: any, private readonly tokenRepository: any) {}
+  constructor(private readonly userRepository: any, private readonly tokenRepository: any) { }
 
   async execute(input: {
     pseudo: string;
@@ -17,7 +18,16 @@ export class CreateUserUseCase {
 
     const existing = await this.userRepository.findByEmail(input.email);
     if (existing) {
-      throw new Error('EMAIL_ALREADY_USED');
+      throw new DomainError('EMAIL_ALREADY_USED', 'Email already used');
+    }
+
+    const existingPseudo =
+      await this.userRepository.findByPseudo(
+        input.pseudo
+      );
+
+    if (existingPseudo) {
+      throw new DomainError('PSEUDO_ALREADY_USED', 'Pseudo already used');
     }
 
     const user = new User(

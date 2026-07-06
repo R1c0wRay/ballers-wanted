@@ -107,7 +107,7 @@
             console.log("REGISTER:", data);
 
             if (!res.ok) {
-                showMessage("❌ " + data.message, true);
+                handleError(data);
                 return;
             }
 
@@ -130,7 +130,7 @@
             console.log("CONFIRM:", data);
 
             if (!res.ok) {
-                showMessage("❌ " + data.message, true);
+                handleError(data);
                 return;
             }
 
@@ -191,6 +191,18 @@
             console.log("ERROR DATA =", data);
 
             switch (data.errorCode) {
+
+                case "EMAIL_ALREADY_USED":
+                    showMessage("❌ Cette adresse email est déjà utilisée", true);
+                    break;
+
+                case "INVALID_EMAIL_FORMAT":
+                    showMessage("❌ Format d'email invalide", true);
+                    break;
+
+                case "PSEUDO_ALREADY_USED":
+                    showMessage("❌ Ce pseudo est déjà utilisé", true);
+                    break;
 
                 case "OTP_INVALID":
                     showMessage("❌ OTP invalide", true);
