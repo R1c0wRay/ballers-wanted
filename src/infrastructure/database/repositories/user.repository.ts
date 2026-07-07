@@ -21,7 +21,5 @@ export class UserRepository {
     } else {
       this.users.push(user);
     }
-
-    console.log(user);
   }
 }
