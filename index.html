@@ -37,6 +37,47 @@
         #output {
             margin-top: 20px;
         }
+
+        .consent-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 10px;
+
+            margin: 15px 0;
+
+            font-size: 14px;
+        }
+
+        .consent-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .consent-container input {
+            width: auto;
+            margin: 0;
+        }
+
+        .consent-container a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .modal-title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 
@@ -47,251 +88,339 @@
     <input id="pseudo" placeholder="pseudo"><br>
     <input id="email" placeholder="email"><br>
     <input id="pictoId" placeholder="pictoId"><br>
-    <button onclick="register()">Register</button>
+    <div class="consent-container">
+        <input id="consent" type="checkbox">
+        <span>
+            J'accepte la
+            <a href="javascript:openPrivacyPolicy();"">
+            politique de confidentialité
+            </a>
+        </span>
+    </div>
 
-    <h2>2️⃣ Confirm Email</h2>
+    <button onclick=" register()">Register</button>
 
-    <input id="token" placeholder="confirmation token"><br>
-    <button onclick="confirmEmail()">Confirm</button>
+                <h2>2️⃣ Confirm Email</h2>
 
-    <h2>3️⃣ OTP</h2>
+                <input id="token" placeholder="confirmation token"><br>
+                <button onclick="confirmEmail()">Confirm</button>
 
-    <button id="requestBtn" onclick="requestOtp()">Request OTP</button>
-    <div id="countdown"></div>
+                <h2>3️⃣ OTP</h2>
 
-    <br>
+                <button id="requestBtn" onclick="requestOtp()">Request OTP</button>
+                <div id="countdown"></div>
 
-    <input id="code" placeholder="OTP code"><br>
-    <button id="verifyBtn" onclick="verifyOtp()">Verify OTP</button>
+                <br>
 
-    <h3>Output</h3>
-    <div id="output">Waiting...</div>
+                <input id="code" placeholder="OTP code"><br>
+                <button id="verifyBtn" onclick="verifyOtp()">Verify OTP</button>
 
-    <script>
+                <h3>Output</h3>
+                <div id="output">Waiting...</div>
 
-        const API = "http://localhost:3000";
-        const BLOCK_DURATION = 20 * 1000;
+                <div id="privacyModal"
+                    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:1000;">
+                    <div
+                        style="background:white; color:black; max-width:700px; margin:50px auto; padding:20px; border-radius:10px; text-align:left; max-height:80vh; overflow-y:auto;">
+                        <h2 class="modal-title">
+                            Politique de confidentialité
+                        </h2>
+                        <p>
+                            Bienvenue sur Ballers Wanted.
+                        </p>
+                        <p>
+                            Dans le cadre du fonctionnement de l'application,
+                            nous collectons uniquement les informations nécessaires
+                            à la création et à la gestion de votre compte :
+                        </p>
+                        <ul>
+                            <li>Pseudo</li>
+                            <li>Adresse email</li>
+                            <li>Picto sélectionné</li>
+                        </ul>
+                        <p>
+                            Ces données sont utilisées exclusivement pour :
+                        </p>
+                        <ul>
+                            <li>L'authentification des utilisateurs</li>
+                            <li>La sécurisation des accès</li>
+                            <li>Le bon fonctionnement de Ballers Wanted</li>
+                        </ul>
+                        <p>
+                            Aucune donnée n'est vendue à des tiers.
+                        </p>
+                        <p>
+                            Vous pouvez demander la suppression de votre compte et
+                            de vos données à tout moment.
+                        </p>
+                        <p>
+                            En cochant la case de consentement, vous acceptez cette
+                            politique de confidentialité version v1.
+                        </p>
+                        <div class="modal-actions">
+                            <button onclick="closePrivacyPolicy()">
+                                Fermer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <script>
 
-        let token = null;
+                    const API = "http://localhost:3000";
+                    const BLOCK_DURATION = 20 * 1000;
 
-        function showMessage(text, isError = false) {
-            const el = document.getElementById("output");
-            el.style.color = isError ? "red" : "lightgreen";
-            el.textContent = text;
-        }
+                    let token = null;
 
-        function showJSON(data) {
-            document.getElementById("output").textContent =
-                JSON.stringify(data, null, 2);
-        }
-
-        // ✅ REGISTER
-        async function register() {
-            const pseudo = document.getElementById("pseudo").value;
-            const email = document.getElementById("email").value;
-            const pictoId = document.getElementById("pictoId").value;
-
-            const res = await fetch(API + "/users/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    pseudo,
-                    email,
-                    pictoId,
-                    consentAccepted: true
-                })
-            });
-
-            const data = await res.json();
-
-            console.log("REGISTER:", data);
-
-            if (!res.ok) {
-                handleError(data);
-                return;
-            }
-
-            // auto inject token
-            document.getElementById("token").value = data.confirmationToken;
-
-            showJSON(data);
-        }
-
-        // ✅ CONFIRM EMAIL
-        async function confirmEmail() {
-            const token = document.getElementById("token").value;
-
-            const res = await fetch(API + "/users/confirm/" + token, {
-                method: "POST"
-            });
-
-            const data = await res.json();
-
-            console.log("CONFIRM:", data);
-
-            if (!res.ok) {
-                handleError(data);
-                return;
-            }
-
-            showJSON(data);
-        }
-
-        // ✅ REQUEST OTP
-        async function requestOtp() {
-            const email = document.getElementById("email").value;
-
-            const res = await fetch(API + "/users/otp/request", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email })
-            });
-
-            const data = await res.json();
-
-            console.log("REQUEST OTP:", data);
-
-            if (!res.ok) {
-                handleError(data);
-                return;
-            }
-
-            document.getElementById("verifyBtn").disabled = false;
-
-            showMessage("✅ OTP envoyé !");
-        }
-
-        // ✅ VERIFY OTP
-        async function verifyOtp() {
-            const email = document.getElementById("email").value;
-            const code = document.getElementById("code").value;
-
-            const res = await fetch(API + "/users/otp/verify", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, code })
-            });
-
-            const data = await res.json();
-
-            console.log("VERIFY OTP:", data);
-
-            if (!res.ok) {
-                handleError(data);
-                return;
-            }
-
-            showMessage("✅ Connected !");
-            token = data.accessToken;
-        }
-
-        // ✅ GESTION ERREURS
-        function handleError(data) {
-
-            console.log("ERROR DATA =", data);
-
-            switch (data.errorCode) {
-
-                case "EMAIL_ALREADY_USED":
-                    showMessage("❌ Cette adresse email est déjà utilisée", true);
-                    break;
-
-                case "INVALID_EMAIL_FORMAT":
-                    showMessage("❌ Format d'email invalide", true);
-                    break;
-
-                case "PSEUDO_ALREADY_USED":
-                    showMessage("❌ Ce pseudo est déjà utilisé", true);
-                    break;
-
-                case "OTP_INVALID":
-                    showMessage("❌ OTP invalide", true);
-                    break;
-
-                case "OTP_MAX_ATTEMPTS":
-                    showMessage("⚠️ Dernier essai avant blocage", true);
-                    break;
-
-                case "OTP_BLOCKED":
-                    showMessage("🚫 OTP bloqué pendant 20 secondes", true);
-
-                    if (!localStorage.getItem("otpBlockedUntil")) {
-                        startBlockTimer();
+                    function openPrivacyPolicy() {
+                        document.getElementById("privacyModal").style.display = "block";
                     }
 
-                    disableOtpActions();
-                    break;
+                    function closePrivacyPolicy() {
+                        document.getElementById("privacyModal").style.display = "none";
+                    }
 
-                case "OTP_EXPIRED":
-                    showMessage("⏱️ OTP expiré", true);
-                    break;
+                    function showMessage(text, isError = false) {
+                        const el = document.getElementById("output");
+                        el.style.color = isError ? "red" : "lightgreen";
+                        el.textContent = text;
+                    }
 
-                default:
-                    showMessage("❌ " + data.message, true);
-            }
-        }
+                    function showJSON(data) {
+                        document.getElementById("output").textContent =
+                            JSON.stringify(data, null, 2);
+                    }
 
-        // ✅ TIMER BLOCK
-        function startBlockTimer() {
-            const blockedUntil = Date.now() + BLOCK_DURATION;
-            localStorage.setItem("otpBlockedUntil", blockedUntil);
+                    // ✅ REGISTER
+                    async function register() {
+                        const pseudo = document.getElementById("pseudo").value;
+                        const email = document.getElementById("email").value;
+                        const pictoId = document.getElementById("pictoId").value;
+                        const consentAccepted = document.getElementById("consent").checked;
 
-            updateBlockUI();
-        }
+                        if (!consentAccepted) {
+                            showMessage("❌ Vous devez accepter la politique de confidentialité", true);
+                            return;
+                        }
 
-        function updateBlockUI() {
+                        if (!pictoId.trim()) {
+                            showMessage("❌ Vous devez sélectionner un picto", true);
+                            return;
+                        }
 
-            const btnRequest = document.getElementById("requestBtn");
-            const btnVerify = document.getElementById("verifyBtn");
-            const countdown = document.getElementById("countdown");
+                        if (!pseudo.trim()) {
+                            showMessage("❌ Vous devez choisir un pseudo", true);
+                            return;
+                        }
 
-            const blockedUntil = Number(
-                localStorage.getItem("otpBlockedUntil")
-            );
+                        const res = await fetch(API + "/users/register", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                pseudo,
+                                email,
+                                pictoId,
+                                consentAccepted: true
+                            })
+                        });
 
-            if (!blockedUntil) {
-                btnRequest.disabled = false;
-                btnVerify.disabled = false;
-                countdown.textContent = "";
-                return;
-            }
+                        const data = await res.json();
 
-            const remaining = blockedUntil - Date.now();
+                        console.log("REGISTER:", data);
 
-            if (remaining <= 0) {
-                document.getElementById("code").value = "";
+                        if (!res.ok) {
+                            handleError(data);
+                            return;
+                        }
 
-                btnRequest.disabled = false;
-                btnVerify.disabled = true;
+                        // auto inject token
+                        document.getElementById("token").value = data.confirmationToken;
 
-                countdown.textContent = "";
+                        showJSON(data);
+                    }
 
-                localStorage.removeItem("otpBlockedUntil");
+                    // ✅ CONFIRM EMAIL
+                    async function confirmEmail() {
+                        const token = document.getElementById("token").value;
 
-                showMessage(
-                    "⚠️ Votre OTP a été invalidé. Demandez un nouveau code."
-                );
+                        const res = await fetch(API + "/users/confirm/" + token, {
+                            method: "POST"
+                        });
 
-                return;
-            }
+                        const data = await res.json();
 
-            // ✅ on bloque les 2 boutons
-            btnRequest.disabled = true;
-            btnVerify.disabled = true;
+                        console.log("CONFIRM:", data);
 
-            const sec = Math.floor(remaining / 1000);
-            const min = Math.floor(sec / 60);
-            const seconds = sec % 60;
+                        if (!res.ok) {
+                            handleError(data);
+                            return;
+                        }
 
-            countdown.textContent =
-                `⏳ ${min}:${seconds.toString().padStart(2, "0")}`;
+                        showJSON(data);
+                    }
 
-            setTimeout(updateBlockUI, 1000);
-        }
+                    // ✅ REQUEST OTP
+                    async function requestOtp() {
+                        const email = document.getElementById("email").value;
 
-        updateBlockUI();
+                        const res = await fetch(API + "/users/otp/request", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ email })
+                        });
 
-    </script>
+                        const data = await res.json();
+
+                        console.log("REQUEST OTP:", data);
+
+                        if (!res.ok) {
+                            handleError(data);
+                            return;
+                        }
+
+                        document.getElementById("verifyBtn").disabled = false;
+
+                        showMessage("✅ OTP envoyé !");
+                    }
+
+                    // ✅ VERIFY OTP
+                    async function verifyOtp() {
+                        const email = document.getElementById("email").value;
+                        const code = document.getElementById("code").value;
+
+                        const res = await fetch(API + "/users/otp/verify", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ email, code })
+                        });
+
+                        const data = await res.json();
+
+                        console.log("VERIFY OTP:", data);
+
+                        if (!res.ok) {
+                            handleError(data);
+                            return;
+                        }
+
+                        showMessage("✅ Connected !");
+                        token = data.accessToken;
+                    }
+
+                    // ✅ GESTION ERREURS
+                    function handleError(data) {
+
+                        console.log("ERROR DATA =", data);
+
+                        switch (data.errorCode) {
+
+                            case "EMAIL_ALREADY_USED":
+                                showMessage("❌ Cette adresse email est déjà utilisée", true);
+                                break;
+
+                            case "INVALID_EMAIL_FORMAT":
+                                showMessage("❌ Format d'email invalide", true);
+                                break;
+
+                            case "PSEUDO_ALREADY_USED":
+                                showMessage("❌ Ce pseudo est déjà utilisé", true);
+                                break;
+
+                            case "PICTO_REQUIRED":
+                                showMessage("❌ Vous devez sélectionner un picto", true);
+                                break;
+
+                            case "CONSENT_REQUIRED":
+                                showMessage("❌ Vous devez accepter la politique de confidentialité", true);
+                                break;
+
+                            case "OTP_INVALID":
+                                showMessage("❌ OTP invalide", true);
+                                break;
+
+                            case "OTP_MAX_ATTEMPTS":
+                                showMessage("⚠️ Dernier essai avant blocage", true);
+                                break;
+
+                            case "OTP_BLOCKED":
+                                showMessage("🚫 OTP bloqué pendant 20 secondes", true);
+
+                                if (!localStorage.getItem("otpBlockedUntil")) {
+                                    startBlockTimer();
+                                }
+
+                                disableOtpActions();
+                                break;
+
+                            case "OTP_EXPIRED":
+                                showMessage("⏱️ OTP expiré", true);
+                                break;
+
+                            default:
+                                showMessage("❌ " + data.message, true);
+                        }
+                    }
+
+                    // ✅ TIMER BLOCK
+                    function startBlockTimer() {
+                        const blockedUntil = Date.now() + BLOCK_DURATION;
+                        localStorage.setItem("otpBlockedUntil", blockedUntil);
+
+                        updateBlockUI();
+                    }
+
+                    function updateBlockUI() {
+
+                        const btnRequest = document.getElementById("requestBtn");
+                        const btnVerify = document.getElementById("verifyBtn");
+                        const countdown = document.getElementById("countdown");
+
+                        const blockedUntil = Number(
+                            localStorage.getItem("otpBlockedUntil")
+                        );
+
+                        if (!blockedUntil) {
+                            btnRequest.disabled = false;
+                            btnVerify.disabled = false;
+                            countdown.textContent = "";
+                            return;
+                        }
+
+                        const remaining = blockedUntil - Date.now();
+
+                        if (remaining <= 0) {
+                            document.getElementById("code").value = "";
+
+                            btnRequest.disabled = false;
+                            btnVerify.disabled = true;
+
+                            countdown.textContent = "";
+
+                            localStorage.removeItem("otpBlockedUntil");
+
+                            showMessage(
+                                "⚠️ Votre OTP a été invalidé. Demandez un nouveau code."
+                            );
+
+                            return;
+                        }
+
+                        // ✅ on bloque les 2 boutons
+                        btnRequest.disabled = true;
+                        btnVerify.disabled = true;
+
+                        const sec = Math.floor(remaining / 1000);
+                        const min = Math.floor(sec / 60);
+                        const seconds = sec % 60;
+
+                        countdown.textContent =
+                            `⏳ ${min}:${seconds.toString().padStart(2, "0")}`;
+
+                        setTimeout(updateBlockUI, 1000);
+                    }
+
+                    updateBlockUI();
+
+                </script>
 
 </body>
 

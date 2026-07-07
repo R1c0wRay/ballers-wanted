@@ -29,4 +29,11 @@ export class User {
   getPseudo(): string {
     return this.pseudo;
   }
+
+  getConsentInfo() {
+    return {
+      version: this.consentVersion,
+      acceptedAt: this.consentAcceptedAt,
+    };
+  }
 }
