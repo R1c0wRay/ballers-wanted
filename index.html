@@ -225,8 +225,6 @@
 
                         const data = await res.json();
 
-                        console.log("REGISTER:", data);
-
                         if (!res.ok) {
                             handleError(data);
                             return;
@@ -248,8 +246,6 @@
 
                         const data = await res.json();
 
-                        console.log("CONFIRM:", data);
-
                         if (!res.ok) {
                             handleError(data);
                             return;
@@ -269,8 +265,6 @@
                         });
 
                         const data = await res.json();
-
-                        console.log("REQUEST OTP:", data);
 
                         if (!res.ok) {
                             handleError(data);
@@ -295,8 +289,6 @@
 
                         const data = await res.json();
 
-                        console.log("VERIFY OTP:", data);
-
                         if (!res.ok) {
                             handleError(data);
                             return;
@@ -308,9 +300,6 @@
 
                     // ✅ GESTION ERREURS
                     function handleError(data) {
-
-                        console.log("ERROR DATA =", data);
-
                         switch (data.errorCode) {
 
                             case "EMAIL_ALREADY_USED":

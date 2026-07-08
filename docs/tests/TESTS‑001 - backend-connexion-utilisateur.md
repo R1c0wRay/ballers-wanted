@@ -1,4 +1,4 @@
-# Tests de Feature : Connexion à Ballers Wanted
+# Tests backond only de Feature : Connexion à Ballers Wanted
 
 **Branche de la Feature**: `001-connexion-ballers-wanted`
 **Créé le**: 11/06/2026
@@ -60,7 +60,7 @@ Invoke-RestMethod `
 
 ---
 
-## ## ÉTAPE 4 BIS — PREPARER UN MAUVAIS CODE
+## ÉTAPE 4 BIS — PREPARER UN MAUVAIS CODE
 
 $invalidBody = @{
   email = "test@test.com"
