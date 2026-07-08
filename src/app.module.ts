@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 
+import { PrismaUserRepository } from './infrastructure/database/repositories/prisma-user.repository';
+
 import { UserController } from './api/user/user.controller';
 
 import { CreateUserUseCase } from './application/user/create-user.usecase';
@@ -17,6 +19,7 @@ import { JwtService } from './infrastructure/auth/jwt.service';
   controllers: [UserController],
   providers: [
     // ✅ repos
+    PrismaUserRepository,
     UserRepository,
     TokenRepository,
     OtpRepository,
@@ -26,10 +29,10 @@ import { JwtService } from './infrastructure/auth/jwt.service';
     {
       provide: CreateUserUseCase,
       useFactory: (
-        userRepo: UserRepository,
+        userRepo: PrismaUserRepository,
         tokenRepo: TokenRepository,
       ) => new CreateUserUseCase(userRepo, tokenRepo),
-      inject: [UserRepository, TokenRepository],
+      inject: [PrismaUserRepository, TokenRepository],
     },
 
     // ✅ Confirm Email
@@ -39,7 +42,7 @@ import { JwtService } from './infrastructure/auth/jwt.service';
         userRepo: UserRepository,
         tokenRepo: TokenRepository,
       ) => new ConfirmEmailUseCase(userRepo, tokenRepo),
-      inject: [UserRepository, TokenRepository],
+      inject: [PrismaUserRepository, TokenRepository],
     },
 
     // ✅ Request OTP
@@ -49,7 +52,7 @@ import { JwtService } from './infrastructure/auth/jwt.service';
         userRepo: UserRepository,
         otpRepo: OtpRepository,
       ) => new RequestOtpUseCase(userRepo, otpRepo),
-      inject: [UserRepository, OtpRepository],
+      inject: [PrismaUserRepository, OtpRepository],
     },
 
     // ✅ Verify OTP
@@ -60,7 +63,7 @@ import { JwtService } from './infrastructure/auth/jwt.service';
         otpRepo: OtpRepository,
         jwtService: JwtService
       ) => new VerifyOtpUseCase(userRepo, otpRepo, jwtService),
-      inject: [UserRepository, OtpRepository, JwtService],
+      inject: [PrismaUserRepository, OtpRepository, JwtService],
     },
   ],
 })

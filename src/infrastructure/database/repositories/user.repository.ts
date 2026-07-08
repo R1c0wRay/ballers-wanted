@@ -1,25 +1,50 @@
+import { prisma } from '../../prisma/prisma.service';
+
 export class UserRepository {
-  private users: any[] = [];
 
   async findByEmail(email: string) {
-    return this.users.find((u) => u.email === email) || null;
+    return await prisma.user.findUnique({
+      where: { email },
+    });
   }
 
   async findByPseudo(pseudo: string) {
-    return this.users.find((u) => u.pseudo === pseudo) || null;
+    return await prisma.user.findUnique({
+      where: { pseudo },
+    });
   }
 
   async findById(id: string) {
-    return this.users.find((u) => u.id === id) || null;
+    return await prisma.user.findUnique({
+      where: { id },
+    });
   }
 
   async save(user: any) {
-    const existing = this.users.find((u) => u.id === user.id);
 
-    if (existing) {
-      Object.assign(existing, user);
-    } else {
-      this.users.push(user);
-    }
+    await prisma.user.upsert({
+      where: {
+        id: user.id,
+      },
+
+      update: {
+        status: user.isActive() ? 'active' : 'pending',
+      },
+
+      create: {
+        id: user.id,
+        pseudo: user.getPseudo(),
+        email: user.getEmail(),
+
+        pictoId: user.pictoId,
+
+        status: 'pending',
+
+        consentVersion: 'v1',
+        consentAcceptedAt: new Date(),
+
+        createdAt: user.createdAt,
+      },
+    });
   }
 }

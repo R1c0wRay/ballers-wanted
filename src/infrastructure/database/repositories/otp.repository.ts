@@ -23,11 +23,6 @@ export class OtpRepository {
       expiresAt
     );
 
-    console.log(
-      'OTP generated:',
-      otp.value
-    );
-
     this.otps.push(otp);
 
     return otp;

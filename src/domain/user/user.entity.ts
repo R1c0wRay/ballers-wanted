@@ -30,6 +30,14 @@ export class User {
     return this.pseudo;
   }
 
+  getPictoId(): string {
+    return this.pictoId;
+  }
+
+  getStatus(): UserStatus {
+    return this.status;
+  }
+
   getConsentInfo() {
     return {
       version: this.consentVersion,
