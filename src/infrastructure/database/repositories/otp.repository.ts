@@ -25,6 +25,8 @@ export class OtpRepository {
 
     this.otps.push(otp);
 
+    console.log(otp);
+
     return otp;
   }
 

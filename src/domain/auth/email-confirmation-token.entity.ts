@@ -20,7 +20,7 @@ export class EmailConfirmationToken {
     readonly userId: string,
     private status: TokenStatus,
     readonly expiresAt: Date,
-  ) { }
+  ) {}
 
   use(): void {
     if (this.status !== 'active') {
@@ -37,13 +37,5 @@ export class EmailConfirmationToken {
 
   getStatus(): TokenStatus {
     return this.status;
-  }
-
-  getUserId(): string {
-    return this.userId;
-  }
-
-  getExpiresAt(): Date {
-    return this.expiresAt;
   }
 }

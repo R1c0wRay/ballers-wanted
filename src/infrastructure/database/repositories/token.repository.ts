@@ -36,7 +36,7 @@ export class TokenRepository {
         status: 'active',
 
         expiresAt: new Date(
-          Date.now() +  20 * 1000
+          Date.now() + 5 * 60 * 1000
         ),
 
         createdAt: new Date(),
@@ -63,5 +63,20 @@ export class TokenRepository {
     }
 
     return this.toDomain(token);
+  }
+
+  async save(
+    token: EmailConfirmationToken,
+  ): Promise<void> {
+
+    await prisma.confirmationToken.update({
+      where: {
+        value: token.value,
+      },
+
+      data: {
+        status: token.getStatus(),
+      },
+    });
   }
 }

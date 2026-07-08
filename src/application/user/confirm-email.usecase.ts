@@ -9,16 +9,14 @@ export class ConfirmEmailUseCase {
   ) {}
 
   async execute(input: { tokenValue: string }) {
+
     const token = await this.tokenRepository.getByValue(
       input.tokenValue,
     );
 
-    if (!token) {
-      throw new DomainError(
-        'TOKEN_INVALID',
-        'Invalid token',
-      );
-    }
+    token.use();
+
+    await this.tokenRepository.save(token);
 
     const user = await this.userRepository.findById(
       token.userId,
