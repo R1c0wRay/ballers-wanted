@@ -1,26 +1,56 @@
+import { User } from '../../../domain/user/user.entity';
 import { prisma } from '../../prisma/prisma.service';
 
 export class UserRepository {
 
+  private toDomain(data: any): User | null {
+
+    if (!data) {
+      return null;
+    }
+
+    return new User(
+      data.id,
+      data.pseudo,
+      data.email,
+      data.pictoId,
+      data.status,
+      data.consentVersion,
+      data.consentAcceptedAt,
+      data.createdAt,
+    );
+  }
+
   async findByEmail(email: string) {
-    return await prisma.user.findUnique({
+
+    const user = await prisma.user.findUnique({
       where: { email },
     });
+
+    return this.toDomain(user);
   }
 
   async findByPseudo(pseudo: string) {
-    return await prisma.user.findUnique({
+
+    const user = await prisma.user.findUnique({
       where: { pseudo },
     });
+
+    return this.toDomain(user);
   }
 
   async findById(id: string) {
-    return await prisma.user.findUnique({
+
+    const user = await prisma.user.findUnique({
       where: { id },
     });
+
+    return this.toDomain(user);
   }
 
-  async save(user: any) {
+  async save(user: User) {
+
+    const consent = user.getConsentInfo();
 
     await prisma.user.upsert({
       where: {
@@ -28,7 +58,7 @@ export class UserRepository {
       },
 
       update: {
-        status: user.isActive() ? 'active' : 'pending',
+        status: user.getStatus(),
       },
 
       create: {
@@ -36,12 +66,12 @@ export class UserRepository {
         pseudo: user.getPseudo(),
         email: user.getEmail(),
 
-        pictoId: user.pictoId,
+        pictoId: user.getPictoId(),
 
-        status: 'pending',
+        status: user.getStatus(),
 
-        consentVersion: 'v1',
-        consentAcceptedAt: new Date(),
+        consentVersion: consent.version,
+        consentAcceptedAt: consent.acceptedAt,
 
         createdAt: user.createdAt,
       },

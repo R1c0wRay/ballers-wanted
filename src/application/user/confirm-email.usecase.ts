@@ -9,27 +9,35 @@ export class ConfirmEmailUseCase {
   ) {}
 
   async execute(input: { tokenValue: string }) {
-    const token = await this.tokenRepository.getByValue(input.tokenValue);
+    const token = await this.tokenRepository.getByValue(
+      input.tokenValue,
+    );
 
     if (!token) {
-      throw new DomainError('TOKEN_INVALID', 'Invalid token');
+      throw new DomainError(
+        'TOKEN_INVALID',
+        'Invalid token',
+      );
     }
 
-    const user = await this.userRepository.findById(token.userId);
+    const user = await this.userRepository.findById(
+      token.userId,
+    );
 
     if (!user) {
-      throw new DomainError('USER_NOT_FOUND', 'User not found');
+      throw new DomainError(
+        'USER_NOT_FOUND',
+        'User not found',
+      );
     }
 
-    // ✅ ✅ ✅ CORRECTION ICI
-    await this.userRepository.save({
-      ...user,
-      status: 'active',
-    });
+    user.activate();
+
+    await this.userRepository.save(user);
 
     return {
       userId: user.id,
-      status: 'active',
+      status: user.getStatus(),
     };
   }
 }
