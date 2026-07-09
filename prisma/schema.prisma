@@ -48,7 +48,7 @@ model ConfirmationToken {
 model Otp {
   id           String   @id
 
-  value        String
+  value        String   @unique
 
   userId       String
   user         User     @relation(fields: [userId], references: [id])

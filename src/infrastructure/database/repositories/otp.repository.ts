@@ -1,50 +1,102 @@
-import { Otp } from '../../../domain/auth/otp.entity';
+import { randomUUID } from 'crypto';
+
+import { prisma } from '../../prisma/prisma.service';
+
+import {
+  Otp,
+  OtpStatus,
+} from '../../../domain/auth/otp.entity';
 
 export class OtpRepository {
-  private otps: Otp[] = [];
+
+  private toDomain(data: any): Otp | null {
+
+    if (!data) {
+      return null;
+    }
+
+    return new Otp(
+      data.value,
+      data.userId,
+      data.status as OtpStatus,
+      data.attempts,
+      data.expiresAt,
+      data.blockedUntil,
+    );
+  }
 
   async create(userId: string): Promise<Otp> {
 
-    this.otps = this.otps.filter(
-      o => o.userId !== userId
-    );
+    await prisma.otp.deleteMany({
+      where: {
+        userId,
+      },
+    });
 
-    const expiresAt = new Date(
-      Date.now() + 20 * 1000
-    );
+    const otp = await prisma.otp.create({
+      data: {
+        id: randomUUID(),
 
-    const otp = new Otp(
-      Math.floor(
-        100000 + Math.random() * 900000
-      ).toString(),
-      userId,
-      'active',
-      0,
-      expiresAt
-    );
+        value: Math.floor(
+          100000 + Math.random() * 900000
+        ).toString(),
 
-    this.otps.push(otp);
+        userId,
 
-    console.log(otp);
+        status: 'active',
 
-    return otp;
+        attempts: 0,
+
+        expiresAt: new Date(
+          Date.now() + 20 * 1000
+        ),
+
+        createdAt: new Date(),
+      },
+    });
+
+    console.log('OTP generated:', otp.value);
+
+    return this.toDomain(otp)!;
   }
 
   async getActiveByUserId(
-    userId: string
+    userId: string,
   ): Promise<Otp | null> {
 
-    const otp =
-      this.otps.find(
-        o => o.userId === userId
-      ) || null;
+    const otp = await prisma.otp.findFirst({
+      where: {
+        userId,
+      },
+
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
     if (!otp) {
       return null;
     }
 
-    return otp.isActive()
-      ? otp
+    const domainOtp = this.toDomain(otp);
+
+    return domainOtp?.isActive()
+      ? domainOtp
       : null;
+  }
+
+  async save(otp: Otp): Promise<void> {
+
+    await prisma.otp.update({
+      where: {
+        value: otp.value,
+      },
+
+      data: {
+        status: otp.getStatus(),
+        attempts: otp.getAttempts(),
+        blockedUntil: otp.getBlockedUntil(),
+      },
+    });
   }
 }

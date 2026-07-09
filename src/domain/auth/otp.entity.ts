@@ -14,7 +14,7 @@ export class Otp {
     private attempts: number,
     readonly expiresAt: Date,
     private blockedUntil?: Date,
-  ) {}
+  ) { }
 
   isActive(): boolean {
     return this.status === 'active';
@@ -22,6 +22,18 @@ export class Otp {
 
   getStatus(): OtpStatus {
     return this.status;
+  }
+
+  getAttempts(): number {
+    return this.attempts;
+  }
+
+  getExpiresAt(): Date {
+    return this.expiresAt;
+  }
+
+  getBlockedUntil(): Date | undefined {
+    return this.blockedUntil;
   }
 
   verify(inputCode: string): void {

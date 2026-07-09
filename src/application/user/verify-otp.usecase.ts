@@ -8,23 +8,38 @@ export class VerifyOtpUseCase {
     private readonly userRepository: UserRepository,
     private readonly otpRepository: OtpRepository,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async execute(input: { email: string; code: string }) {
-    const user = await this.userRepository.findByEmail(input.email);
+
+    const user = await this.userRepository.findByEmail(
+      input.email,
+    );
 
     if (!user) {
-      throw new DomainError('OTP_INVALID', 'Invalid OTP');
+      throw new DomainError(
+        'OTP_INVALID',
+        'Invalid OTP',
+      );
     }
 
-    const otp = await this.otpRepository.getActiveByUserId(user.id);
+    const otp =
+      await this.otpRepository.getActiveByUserId(
+        user.id,
+      );
 
     if (!otp) {
-      throw new DomainError('OTP_INVALID', 'Invalid OTP');
+      throw new DomainError(
+        'OTP_INVALID',
+        'Invalid OTP',
+      );
     }
 
-    // ✅ IMPORTANT : on utilise le Domain (comme avant)
-    otp.verify(input.code);
+    try {
+      otp.verify(input.code);
+    } finally {
+      await this.otpRepository.save(otp);
+    }
 
     const token = this.jwtService.generate(user.id);
 
