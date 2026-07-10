@@ -392,7 +392,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   ConfirmationToken: 'ConfirmationToken',
-  Otp: 'Otp'
+  Otp: 'Otp',
+  Picto: 'Picto'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -408,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "confirmationToken" | "otp"
+    modelProps: "user" | "confirmationToken" | "otp" | "picto"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -634,6 +635,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Picto: {
+      payload: Prisma.$PictoPayload<ExtArgs>
+      fields: Prisma.PictoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PictoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PictoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PictoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PictoPayload>
+        }
+        findFirst: {
+          args: Prisma.PictoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PictoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PictoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PictoPayload>
+        }
+        findMany: {
+          args: Prisma.PictoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PictoPayload>[]
+        }
+        create: {
+          args: Prisma.PictoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PictoPayload>
+        }
+        createMany: {
+          args: Prisma.PictoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PictoCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PictoPayload>[]
+        }
+        delete: {
+          args: Prisma.PictoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PictoPayload>
+        }
+        update: {
+          args: Prisma.PictoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PictoPayload>
+        }
+        deleteMany: {
+          args: Prisma.PictoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PictoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PictoUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PictoPayload>[]
+        }
+        upsert: {
+          args: Prisma.PictoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PictoPayload>
+        }
+        aggregate: {
+          args: Prisma.PictoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePicto>
+        }
+        groupBy: {
+          args: Prisma.PictoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PictoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PictoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PictoCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -708,6 +783,15 @@ export const OtpScalarFieldEnum = {
 } as const
 
 export type OtpScalarFieldEnum = (typeof OtpScalarFieldEnum)[keyof typeof OtpScalarFieldEnum]
+
+
+export const PictoScalarFieldEnum = {
+  id: 'id',
+  label: 'label',
+  imageUrl: 'imageUrl'
+} as const
+
+export type PictoScalarFieldEnum = (typeof PictoScalarFieldEnum)[keyof typeof PictoScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -849,6 +933,7 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   confirmationToken?: Prisma.ConfirmationTokenOmit
   otp?: Prisma.OtpOmit
+  picto?: Prisma.PictoOmit
 }
 
 /* Types for Logging */

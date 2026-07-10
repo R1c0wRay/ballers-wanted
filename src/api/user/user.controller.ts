@@ -22,7 +22,7 @@ export class UserController {
     private readonly confirmEmailUseCase: ConfirmEmailUseCase,
     private readonly requestOtpUseCase: RequestOtpUseCase,
     private readonly verifyOtpUseCase: VerifyOtpUseCase,
-  ) {}
+  ) { }
 
   // ✅ Création utilisateur
   @Post('register')

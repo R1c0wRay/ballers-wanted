@@ -51,7 +51,8 @@ export const AnyNull = runtime.objectEnumValues.instances.AnyNull
 export const ModelName = {
   User: 'User',
   ConfirmationToken: 'ConfirmationToken',
-  Otp: 'Otp'
+  Otp: 'Otp',
+  Picto: 'Picto'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -105,6 +106,15 @@ export const OtpScalarFieldEnum = {
 } as const
 
 export type OtpScalarFieldEnum = (typeof OtpScalarFieldEnum)[keyof typeof OtpScalarFieldEnum]
+
+
+export const PictoScalarFieldEnum = {
+  id: 'id',
+  label: 'label',
+  imageUrl: 'imageUrl'
+} as const
+
+export type PictoScalarFieldEnum = (typeof PictoScalarFieldEnum)[keyof typeof PictoScalarFieldEnum]
 
 
 export const SortOrder = {

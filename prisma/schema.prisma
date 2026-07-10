@@ -14,52 +14,62 @@ datasource db {
 }
 
 model User {
-  id                String   @id
-  pseudo            String   @unique
-  email             String   @unique
+  id     String @id
+  pseudo String @unique
+  email  String @unique
 
-  pictoId           String
+  pictoId String
 
-  status            String
+  picto Picto @relation(fields: [pictoId], references: [id])
+
+  status String
 
   consentVersion    String?
   consentAcceptedAt DateTime?
 
-  createdAt         DateTime
+  createdAt DateTime
 
   confirmationTokens ConfirmationToken[]
   otps               Otp[]
 }
 
 model ConfirmationToken {
-  id         String   @id
+  id String @id
 
-  value      String   @unique
+  value String @unique
 
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
-  status     String
+  status String
 
-  expiresAt  DateTime
-  createdAt  DateTime
+  expiresAt DateTime
+  createdAt DateTime
 }
 
 model Otp {
-  id           String   @id
+  id String @id
 
-  value        String   @unique
+  value String @unique
 
-  userId       String
-  user         User     @relation(fields: [userId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
-  status       String
+  status String
 
-  attempts     Int
+  attempts Int
 
-  expiresAt    DateTime
+  expiresAt DateTime
 
   blockedUntil DateTime?
 
-  createdAt    DateTime
+  createdAt DateTime
+}
+
+model Picto {
+  id       String @id
+  label    String
+  imageUrl String
+
+  users User[]
 }

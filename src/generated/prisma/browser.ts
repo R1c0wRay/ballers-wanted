@@ -32,3 +32,8 @@ export type ConfirmationToken = Prisma.ConfirmationTokenModel
  * 
  */
 export type Otp = Prisma.OtpModel
+/**
+ * Model Picto
+ * 
+ */
+export type Picto = Prisma.PictoModel

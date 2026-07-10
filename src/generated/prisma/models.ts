@@ -11,4 +11,5 @@
 export type * from './models/User'
 export type * from './models/ConfirmationToken'
 export type * from './models/Otp'
+export type * from './models/Picto'
 export type * from './commonInputTypes'
