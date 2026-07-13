@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 type Picto = {
     id: string;
     label: string;
@@ -19,6 +21,8 @@ export default function RegisterPage() {
     const [consentAccepted, setConsentAccepted] = useState(false);
 
     const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+
+    const router = useRouter()
 
     const [message, setMessage] = useState('');
 
@@ -148,7 +152,7 @@ export default function RegisterPage() {
                 return;
             }
             setMessage(
-                '✅ Compte créé. Vérifiez votre boîte email.',
+                '✅ Vérifiez votre boîte email pour valider votre inscription.',
             );
         } catch (error) {
             console.error(error);

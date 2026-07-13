@@ -20,6 +20,8 @@ import { OtpRepository } from './infrastructure/database/repositories/otp.reposi
 
 import { JwtService } from './infrastructure/auth/jwt.service';
 
+import { EmailService } from './infrastructure/email/email.service';
+
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -36,6 +38,7 @@ import { JwtService } from './infrastructure/auth/jwt.service';
     TokenRepository,
     OtpRepository,
     JwtService,
+    EmailService,
 
     // ✅ Create User
     {
@@ -43,8 +46,9 @@ import { JwtService } from './infrastructure/auth/jwt.service';
       useFactory: (
         userRepo: PrismaUserRepository,
         tokenRepo: TokenRepository,
-      ) => new CreateUserUseCase(userRepo, tokenRepo),
-      inject: [PrismaUserRepository, TokenRepository],
+        emailService: EmailService,
+      ) => new CreateUserUseCase(userRepo, tokenRepo, emailService),
+      inject: [PrismaUserRepository, TokenRepository, EmailService],
     },
 
     // ✅ Get Pictos

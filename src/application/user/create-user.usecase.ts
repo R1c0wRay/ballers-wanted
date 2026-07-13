@@ -1,10 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { User } from '../../domain/user/user.entity';
 import { UserRules } from '../../domain/user/user.rules';
+import { EmailService } from '../../infrastructure/email/email.service';
 import { DomainError } from '../../domain/common/domain.error';
 
 export class CreateUserUseCase {
-  constructor(private readonly userRepository: any, private readonly tokenRepository: any) { }
+  constructor(private readonly userRepository: any, private readonly tokenRepository: any, private readonly emailService: EmailService) { }
 
   async execute(input: {
     pseudo: string;
@@ -45,9 +46,13 @@ export class CreateUserUseCase {
 
     const token = await this.tokenRepository.create(user.id);
 
+    await this.emailService.sendConfirmationEmail(
+      user.getEmail(),
+      token.value,
+    );
+
     return {
-      userId: user.id,
-      confirmationToken: token.value,
+      success: true,
     };
   }
 }
