@@ -17,9 +17,44 @@ export class CreateUserUseCase {
     UserRules.ensurePictoSelected(input.pictoId);
     UserRules.ensureConsent(input.consentAccepted);
 
-    const existing = await this.userRepository.findByEmail(input.email);
+    const existing =
+      await this.userRepository.findByEmail(
+        input.email,
+      );
+
     if (existing) {
-      throw new DomainError('EMAIL_ALREADY_USED', 'Email already used');
+
+      if (existing.getStatus() === 'active') {
+
+        throw new DomainError(
+          'EMAIL_ALREADY_USED',
+          'Email already used',
+        );
+      }
+
+      if (existing.getStatus() === 'pending') {
+        
+        await this.tokenRepository.invalidateByUserId(
+          existing.id,
+        );
+
+        const token =
+          await this.tokenRepository.create(
+            existing.id,
+          );
+
+        await this.emailService.sendConfirmationEmail(
+          existing.getEmail(),
+          token.value,
+        );
+
+        return {
+          status: 'pending',
+          pseudo: existing.getPseudo(),
+          email: existing.getEmail(),
+          pictoId: existing.getPictoId(),
+        };
+      }
     }
 
     const existingPseudo =
@@ -52,6 +87,7 @@ export class CreateUserUseCase {
     );
 
     return {
+      status: 'created',
       success: true,
     };
   }

@@ -25,6 +25,18 @@ export class DomainErrorFilter implements ExceptionFilter {
 
     // ✅ CAS 2 : DomainError (ton métier)
     if (error instanceof DomainError) {
+
+      if (error.code === 'TOKEN_EXPIRED') {
+
+        const details =
+          JSON.parse(error.message);
+
+        return response.status(400).json({
+          errorCode: error.code,
+          ...details,
+        });
+      }
+
       return response.status(400).json({
         errorCode: error.code,
         message: 'Action not allowed',

@@ -140,4 +140,68 @@ export class EmailService {
       `,
         });
     }
+
+    async sendOtpEmail(
+        email: string,
+        otp: string,
+    ): Promise<void> {
+
+        await this.transporter.sendMail({
+            from: `"Ballers Wanted" <${process.env.MAIL_FROM}>`,
+
+            to: email,
+
+            subject: '🏀 Ton code de connexion Ballers Wanted',
+
+            html: `
+      <div
+        style="
+          font-family:Arial,sans-serif;
+          background:#0f172a;
+          color:white;
+          padding:40px;
+        "
+      >
+
+        <div
+          style="
+            max-width:600px;
+            margin:auto;
+            background:#1e293b;
+            border-radius:12px;
+            padding:30px;
+            text-align:center;
+          "
+        >
+
+          <h1>
+            🏀 Ballers Wanted
+          </h1>
+
+          <p>
+            Voici ton code de connexion :
+          </p>
+
+          <div
+            style="
+              font-size:42px;
+              font-weight:bold;
+              color:#f97316;
+              margin:30px 0;
+              letter-spacing:8px;
+            "
+          >
+            ${otp}
+          </div>
+
+          <p>
+            Ce code est valable 1 minute.
+          </p>
+
+        </div>
+
+      </div>
+    `,
+        });
+    }
 }

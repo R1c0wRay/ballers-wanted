@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-
 import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 type Picto = {
     id: string;
@@ -22,9 +22,11 @@ export default function RegisterPage() {
 
     const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
-    const router = useRouter()
-
     const [message, setMessage] = useState('');
+
+    const searchParams = useSearchParams();
+
+    const accountExpired = searchParams.get('expired') === 'true';
 
     useEffect(() => {
         async function loadPictos() {
@@ -44,6 +46,24 @@ export default function RegisterPage() {
 
         loadPictos();
     }, []);
+
+    useEffect(() => {
+
+        const pseudo =
+            searchParams.get('pseudo');
+
+        const email =
+            searchParams.get('email');
+
+        if (pseudo) {
+            setPseudo(pseudo);
+        }
+
+        if (email) {
+            setEmail(email);
+        }
+
+    }, [searchParams]);
 
     async function register() {
         setMessage('');
@@ -108,6 +128,27 @@ export default function RegisterPage() {
 
             const data = await res.json();
 
+            if (data.status === 'pending') {
+
+                setPseudo(data.pseudo);
+                setEmail(data.email);
+
+                setMessage(
+                    '✅ Votre compte existe déjà mais n’est pas encore activé. Un nouveau lien de confirmation valable 5 minutes vient d’être envoyé.'
+                );
+
+                return;
+            }
+
+            if (data.status === 'created') {
+
+                setMessage(
+                    '✅ Vérifiez votre boîte email pour valider votre inscription. Le lien est valable 5 minutes.'
+                );
+
+                return;
+            }
+
             if (!res.ok) {
 
                 switch (data.errorCode) {
@@ -152,7 +193,7 @@ export default function RegisterPage() {
                 return;
             }
             setMessage(
-                '✅ Vérifiez votre boîte email pour valider votre inscription.',
+                '✅ Un email de confirmation vient de vous être envoyé. Cliquez sur le lien reçu pour activer votre compte. Ce lien expirera dans 5 minutes.',
             );
         } catch (error) {
             console.error(error);
@@ -171,12 +212,45 @@ export default function RegisterPage() {
                         Créer un compte
                     </h1>
 
+                    {
+                        accountExpired && (
+
+                            <div
+                                className="
+                                    mb-6
+                                    p-4
+                                    rounded-lg
+                                    bg-orange-900
+                                    text-orange-200
+                                    border
+                                    border-orange-500
+                                "
+                            >
+                                ⚠️ Votre lien de confirmation a expiré.
+                                <br />
+                                Cliquez sur "Créer mon compte"
+                                pour recevoir un nouveau lien
+                                de confirmation.
+                            </div>
+                        )
+                    }
+
                     <input
                         type="text"
                         placeholder="Pseudo"
                         value={pseudo}
                         onChange={(e) => setPseudo(e.target.value)}
-                        className="w-full mb-4 p-3 rounded bg-white text-black border border-slate-300"
+                        readOnly={accountExpired}
+                        className={`
+                            w-full
+                            mb-4
+                            p-3
+                            rounded
+                            ${accountExpired
+                                ? 'bg-slate-200 text-black cursor-not-allowed'
+                                : 'bg-white text-black'
+                            }
+                        `}
                     />
 
                     <input
@@ -184,7 +258,17 @@ export default function RegisterPage() {
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full mb-8 p-3 rounded bg-white text-black border border-slate-300"
+                        readOnly={accountExpired}
+                        className={`
+                            w-full
+                            mb-8
+                            p-3
+                            rounded
+                            ${accountExpired
+                                ? 'bg-slate-200 text-black cursor-not-allowed'
+                                : 'bg-white text-black'
+                            }
+                        `}
                     />
 
                     <h2 className="text-xl font-semibold mb-4">

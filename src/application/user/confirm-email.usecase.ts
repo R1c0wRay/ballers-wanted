@@ -6,7 +6,7 @@ export class ConfirmEmailUseCase {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly tokenRepository: TokenRepository,
-  ) {}
+  ) { }
 
   async execute(input: { tokenValue: string }) {
 
@@ -14,7 +14,34 @@ export class ConfirmEmailUseCase {
       input.tokenValue,
     );
 
-    token.use();
+    try {
+
+      token.use();
+
+    } catch (error) {
+
+      if (
+        error instanceof DomainError &&
+        error.code === 'TOKEN_EXPIRED'
+      ) {
+
+        const user =
+          await this.userRepository.findById(
+            token.userId,
+          );
+
+        throw new DomainError(
+          'TOKEN_EXPIRED',
+          JSON.stringify({
+            pseudo: user?.getPseudo?.(),
+            email: user?.getEmail?.(),
+            pictoId: user?.getPictoId?.(),
+          }),
+        );
+      }
+
+      throw error;
+    }
 
     await this.tokenRepository.save(token);
 
@@ -36,6 +63,7 @@ export class ConfirmEmailUseCase {
     return {
       userId: user.id,
       status: user.getStatus(),
+      email: user.getEmail(),
     };
   }
 }

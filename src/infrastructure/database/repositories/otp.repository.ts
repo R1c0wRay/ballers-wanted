@@ -48,7 +48,7 @@ export class OtpRepository {
         attempts: 0,
 
         expiresAt: new Date(
-          Date.now() + 20 * 1000
+          Date.now() + 60 * 1000
         ),
 
         createdAt: new Date(),

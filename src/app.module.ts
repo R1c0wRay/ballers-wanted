@@ -75,11 +75,23 @@ import { EmailService } from './infrastructure/email/email.service';
     // ✅ Request OTP
     {
       provide: RequestOtpUseCase,
+
       useFactory: (
-        userRepo: UserRepository,
+        userRepo: PrismaUserRepository,
         otpRepo: OtpRepository,
-      ) => new RequestOtpUseCase(userRepo, otpRepo),
-      inject: [PrismaUserRepository, OtpRepository],
+        emailService: EmailService,
+      ) =>
+        new RequestOtpUseCase(
+          userRepo,
+          otpRepo,
+          emailService,
+        ),
+
+      inject: [
+        PrismaUserRepository,
+        OtpRepository,
+        EmailService,
+      ],
     },
 
     // ✅ Verify OTP

@@ -65,6 +65,22 @@ export class TokenRepository {
     return this.toDomain(token);
   }
 
+  async invalidateByUserId(
+    userId: string,
+  ): Promise<void> {
+
+    await prisma.confirmationToken.updateMany({
+      where: {
+        userId,
+        status: 'active',
+      },
+
+      data: {
+        status: 'expired',
+      },
+    });
+  }
+
   async save(
     token: EmailConfirmationToken,
   ): Promise<void> {
