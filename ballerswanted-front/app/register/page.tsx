@@ -119,7 +119,7 @@ export default function RegisterPage() {
 
                     body: JSON.stringify({
                         pseudo,
-                        email,
+                        email: email.trim().toLowerCase(),
                         pictoId,
                         consentAccepted,
                     }),

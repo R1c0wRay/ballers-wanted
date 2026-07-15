@@ -25,21 +25,98 @@ export default function ConfirmPage() {
     const [countdown, setCountdown] =
         useState('');
 
+    const [showRegisterButton, setShowRegisterButton] =
+        useState(false);
+
+    const [unknownEmail, setUnknownEmail] =
+        useState('');
+
+    const [accountNotConfirmed, setAccountNotConfirmed] =
+        useState(false);
+
+
+    const [otpCooldown, setOtpCooldown] =
+        useState(0);
+
+
     useEffect(() => {
 
         const token =
             searchParams.get('token');
 
         if (!token) {
+
+            setConfirmed(true);
+
             setMessage(
-                '❌ Lien de confirmation invalide',
+                'Connexion'
             );
+
             return;
         }
 
         confirmAccount(token);
 
     }, [searchParams]);
+
+    useEffect(() => {
+
+        const otpAvailableAt =
+            Number(
+                localStorage.getItem(
+                    'otpAvailableAt',
+                ),
+            );
+
+        if (!otpAvailableAt) {
+            return;
+        }
+
+        const remaining =
+            Math.max(
+                0,
+                Math.floor(
+                    (otpAvailableAt - Date.now()) / 1000,
+                ),
+            );
+
+        setOtpCooldown(remaining);
+
+    }, []);
+
+    useEffect(() => {
+
+        if (otpCooldown <= 0) {
+            return;
+        }
+
+        const interval =
+            setInterval(() => {
+
+                setOtpCooldown(
+                    previous => {
+
+                        if (previous <= 1) {
+
+                            localStorage.removeItem(
+                                'otpAvailableAt',
+                            );
+
+                            clearInterval(interval);
+
+                            return 0;
+                        }
+
+                        return previous - 1;
+                    },
+                );
+
+            }, 1000);
+
+        return () =>
+            clearInterval(interval);
+
+    }, [otpCooldown]);
 
     useEffect(() => {
         updateBlockUI();
@@ -155,7 +232,7 @@ export default function ConfirmPage() {
                     },
 
                     body: JSON.stringify({
-                        email,
+                        email: email.trim().toLowerCase(),
                     }),
                 },
             );
@@ -168,8 +245,18 @@ export default function ConfirmPage() {
             return;
         }
 
+        const availableAt =
+            Date.now() + 60 * 1000;
+
+        localStorage.setItem(
+            'otpAvailableAt',
+            availableAt.toString(),
+        );
+
+        setOtpCooldown(60);
+
         setMessage(
-            '✅ OTP envoyé par email. Saisissez le code reçu. Il expirera dans 1 minute.',
+            '✅ OTP envoyé par email. Le code est valable 1 minute.'
         );
     }
 
@@ -187,7 +274,7 @@ export default function ConfirmPage() {
                     },
 
                     body: JSON.stringify({
-                        email,
+                        email: email.trim().toLowerCase(),
                         code,
                     }),
                 },
@@ -206,17 +293,43 @@ export default function ConfirmPage() {
             data.accessToken,
         );
 
-        setMessage(
-            '✅ Connecté',
-        );
-
-        // future navigation
-        // router.push('/playgrounds')
+        window.location.href =
+            '/playgrounds';
     }
 
     function handleError(data: any) {
 
         switch (data.errorCode) {
+
+            case 'USER_NOT_FOUND':
+
+                setUnknownEmail(email);
+
+                setShowRegisterButton(true);
+
+                setMessage(
+                    '❌ Aucun compte actif n’est associé à cette adresse email'
+                );
+
+                break;
+
+            case 'ACCOUNT_NOT_CONFIRMED':
+
+                setAccountNotConfirmed(true);
+
+                setMessage(
+                    '⚠️ Votre compte n’est pas encore activé. Vérifiez votre boîte email et cliquez sur le lien de confirmation.'
+                );
+
+                break;
+
+            case 'CONFIRMATION_LINK_RESENT':
+
+                setMessage(
+                    '✅ Votre lien de confirmation avait expiré. Votre compte n’est pas encore actif. Un nouvel email vient de vous être envoyé.'
+                );
+
+                break;
 
             case 'OTP_INVALID':
 
@@ -340,6 +453,34 @@ export default function ConfirmPage() {
                     {message}
                 </div>
 
+                {
+                    showRegisterButton && (
+
+                        <button
+                            type="button"
+                            onClick={() => {
+
+                                window.location.href =
+                                    `/register?email=${encodeURIComponent(
+                                        unknownEmail,
+                                    )}`;
+                            }}
+                            className="
+                                mb-6
+                                w-full
+                                bg-orange-600
+                                hover:bg-orange-500
+                                p-3
+                                rounded
+                                font-semibold
+                            "
+                        >
+                            Créer un compte
+                        </button>
+
+                    )
+                }
+
                 {confirmed && (
 
                     <>
@@ -354,25 +495,55 @@ export default function ConfirmPage() {
                         <input
                             type="email"
                             value={email}
-                            readOnly
+                            onChange={(e) =>
+                                setEmail(e.target.value)
+                            }
+                            readOnly={
+                                !!searchParams.get('token')
+                            }
                             className="
                                 w-full
                                 p-3
                                 rounded
-                                bg-slate-200
+                                bg-white
                                 text-black
                                 mb-4
-                                cursor-not-allowed
                             "
                         />
 
                         <button
                             onClick={requestOtp}
-                            disabled={!!countdown}
-                            className="w-full bg-orange-600 p-3 rounded mb-4"
+                            disabled={otpCooldown > 0}
+                            className="
+                                w-full
+                                bg-orange-600
+                                disabled:bg-slate-600
+                                disabled:cursor-not-allowed
+                                p-3
+                                rounded
+                                mb-4
+                            "
                         >
                             Recevoir un code
                         </button>
+
+                        {
+                            otpCooldown > 0 && (
+
+                                <div className="text-center mt-3 text-orange-300">
+
+                                    ⏳ Nouveau code disponible dans&nbsp;
+
+                                    {Math.floor(otpCooldown / 60)}
+                                    :
+                                    {(otpCooldown % 60)
+                                        .toString()
+                                        .padStart(2, '0')}
+
+                                </div>
+
+                            )
+                        }
 
                         {countdown && (
                             <div className="text-center mb-4">
@@ -385,10 +556,9 @@ export default function ConfirmPage() {
                             placeholder="Code OTP"
                             value={code}
                             onChange={(e) =>
-                                setCode(
-                                    e.target.value,
-                                )
+                                setCode(e.target.value)
                             }
+                            disabled={accountNotConfirmed}
                             className="
                                 w-full
                                 p-3
@@ -403,8 +573,19 @@ export default function ConfirmPage() {
 
                         <button
                             onClick={verifyOtp}
-                            disabled={!!countdown}
-                            className="w-full bg-orange-600 p-3 rounded"
+                            disabled={
+                                !!countdown ||
+                                accountNotConfirmed
+                            }
+
+                            className="
+                                w-full
+                                bg-orange-600
+                                disabled:bg-slate-600
+                                disabled:cursor-not-allowed
+                                p-3
+                                rounded
+                                "
                         >
                             Se connecter
                         </button>

@@ -79,17 +79,20 @@ import { EmailService } from './infrastructure/email/email.service';
       useFactory: (
         userRepo: PrismaUserRepository,
         otpRepo: OtpRepository,
+        tokenRepository : TokenRepository,
         emailService: EmailService,
       ) =>
         new RequestOtpUseCase(
           userRepo,
           otpRepo,
+          tokenRepository,
           emailService,
         ),
 
       inject: [
         PrismaUserRepository,
         OtpRepository,
+        TokenRepository,
         EmailService,
       ],
     },

@@ -13,6 +13,11 @@ export class CreateUserUseCase {
     pictoId: string;
     consentAccepted: boolean;
   }) {
+
+    input.email = input.email
+      .trim()
+      .toLowerCase();
+
     UserRules.ensureValidEmail(input.email);
     UserRules.ensurePictoSelected(input.pictoId);
     UserRules.ensureConsent(input.consentAccepted);
@@ -33,7 +38,7 @@ export class CreateUserUseCase {
       }
 
       if (existing.getStatus() === 'pending') {
-        
+
         await this.tokenRepository.invalidateByUserId(
           existing.id,
         );

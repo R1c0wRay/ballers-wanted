@@ -65,6 +65,39 @@ export class TokenRepository {
     return this.toDomain(token);
   }
 
+  async getActiveByUserId(
+    userId: string,
+  ): Promise<EmailConfirmationToken | null> {
+
+    const token =
+      await prisma.confirmationToken.findFirst({
+
+        where: {
+          userId,
+          status: 'active',
+        },
+
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+    if (!token) {
+      return null;
+    }
+
+    const domainToken =
+      this.toDomain(token);
+
+    if (
+      new Date() > domainToken.expiresAt
+    ) {
+      return null;
+    }
+
+    return domainToken;
+  }
+
   async invalidateByUserId(
     userId: string,
   ): Promise<void> {

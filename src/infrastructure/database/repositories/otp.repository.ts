@@ -9,12 +9,7 @@ import {
 
 export class OtpRepository {
 
-  private toDomain(data: any): Otp | null {
-
-    if (!data) {
-      return null;
-    }
-
+  private toDomain(data: any): Otp {
     return new Otp(
       data.value,
       data.userId,
@@ -78,11 +73,18 @@ export class OtpRepository {
       return null;
     }
 
-    const domainOtp = this.toDomain(otp);
+    const domainOtp =
+      this.toDomain(otp);
 
-    return domainOtp?.isActive()
-      ? domainOtp
-      : null;
+    if (!domainOtp.isActive()) {
+
+      await this.save(domainOtp);
+
+      return null;
+    }
+
+    return domainOtp;
+
   }
 
   async save(otp: Otp): Promise<void> {

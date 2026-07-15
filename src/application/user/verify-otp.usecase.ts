@@ -11,6 +11,10 @@ export class VerifyOtpUseCase {
   ) { }
 
   async execute(input: { email: string; code: string }) {
+    
+    input.email = input.email
+      .trim()
+      .toLowerCase();
 
     const user = await this.userRepository.findByEmail(
       input.email,

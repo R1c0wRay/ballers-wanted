@@ -17,7 +17,23 @@ export class Otp {
   ) { }
 
   isActive(): boolean {
-    return this.status === 'active';
+
+    if (
+      this.status !== 'active'
+    ) {
+      return false;
+    }
+
+    if (
+      new Date() > this.expiresAt
+    ) {
+
+      this.status = 'expired';
+
+      return false;
+    }
+
+    return true;
   }
 
   getStatus(): OtpStatus {

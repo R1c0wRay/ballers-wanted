@@ -17,7 +17,7 @@ export default function HomePage() {
             Créer un compte
           </a>
 
-          <a className="loginbg-slate-700 hover:bg-slate-600 p-3 rounded font-semibold">
+          <a href="/confirm" className="loginbg-slate-700 hover:bg-slate-600 p-3 rounded font-semibold">
             Se connecter
           </a>
 
