@@ -1,4 +1,86 @@
+'use client';
+
+import { useEffect } from 'react';
+
+function isTokenExpired(
+  token: string,
+): boolean {
+
+  try {
+
+    const payload =
+      JSON.parse(
+        atob(
+          token.split('.')[1],
+        ),
+      );
+
+    return (
+      payload.exp * 1000 <
+      Date.now()
+    );
+
+  } catch {
+
+    return true;
+  }
+}
+
 export default function HomePage() {
+
+  useEffect(() => {
+
+    function isTokenExpired(
+      token: string,
+    ): boolean {
+
+      try {
+
+        const payload =
+          JSON.parse(
+            atob(
+              token.split('.')[1],
+            ),
+          );
+
+        return (
+          payload.exp * 1000 <
+          Date.now()
+        );
+
+      } catch {
+
+        return true;
+      }
+    }
+
+  }, []);
+
+  useEffect(() => {
+
+    const token =
+      localStorage.getItem(
+        'accessToken',
+      );
+
+    if (!token) {
+      return;
+    }
+
+    if (isTokenExpired(token)) {
+
+      localStorage.removeItem(
+        'accessToken',
+      );
+
+      return;
+    }
+
+    window.location.href =
+      '/playgrounds';
+
+  }, []);
+
   return (
     <main className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
       <div className="text-center">

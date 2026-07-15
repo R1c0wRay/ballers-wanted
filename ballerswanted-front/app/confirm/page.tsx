@@ -6,6 +6,30 @@ import { useSearchParams } from 'next/navigation';
 const API_URL = 'http://localhost:3001';
 const BLOCK_DURATION = 20 * 1000;
 
+function isTokenExpired(
+    token: string,
+): boolean {
+
+    try {
+
+        const payload =
+            JSON.parse(
+                atob(
+                    token.split('.')[1],
+                ),
+            );
+
+        return (
+            payload.exp * 1000 <
+            Date.now()
+        );
+
+    } catch {
+
+        return true;
+    }
+}
+
 export default function ConfirmPage() {
 
     const searchParams = useSearchParams();
@@ -38,6 +62,58 @@ export default function ConfirmPage() {
     const [otpCooldown, setOtpCooldown] =
         useState(0);
 
+    useEffect(() => {
+
+        function isTokenExpired(
+            token: string,
+        ): boolean {
+
+            try {
+
+                const payload =
+                    JSON.parse(
+                        atob(
+                            token.split('.')[1],
+                        ),
+                    );
+
+                return (
+                    payload.exp * 1000 <
+                    Date.now()
+                );
+
+            } catch {
+
+                return true;
+            }
+        }
+
+    }, []);
+
+    useEffect(() => {
+
+        const token =
+            localStorage.getItem(
+                'accessToken',
+            );
+
+        if (!token) {
+            return;
+        }
+
+        if (isTokenExpired(token)) {
+
+            localStorage.removeItem(
+                'accessToken',
+            );
+
+            return;
+        }
+
+        window.location.href =
+            '/playgrounds';
+
+    }, []);
 
     useEffect(() => {
 

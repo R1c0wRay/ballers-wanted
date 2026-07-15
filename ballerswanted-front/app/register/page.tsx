@@ -12,6 +12,30 @@ type Picto = {
 
 const API_URL = 'http://localhost:3001';
 
+function isTokenExpired(
+    token: string,
+): boolean {
+
+    try {
+
+        const payload =
+            JSON.parse(
+                atob(
+                    token.split('.')[1],
+                ),
+            );
+
+        return (
+            payload.exp * 1000 <
+            Date.now()
+        );
+
+    } catch {
+
+        return true;
+    }
+}
+
 export default function RegisterPage() {
     const [pictos, setPictos] = useState<Picto[]>([]);
 
@@ -27,6 +51,59 @@ export default function RegisterPage() {
     const searchParams = useSearchParams();
 
     const accountExpired = searchParams.get('expired') === 'true';
+
+    useEffect(() => {
+
+        function isTokenExpired(
+            token: string,
+        ): boolean {
+
+            try {
+
+                const payload =
+                    JSON.parse(
+                        atob(
+                            token.split('.')[1],
+                        ),
+                    );
+
+                return (
+                    payload.exp * 1000 <
+                    Date.now()
+                );
+
+            } catch {
+
+                return true;
+            }
+        }
+
+    }, []);
+
+    useEffect(() => {
+
+        const token =
+            localStorage.getItem(
+                'accessToken',
+            );
+
+        if (!token) {
+            return;
+        }
+
+        if (isTokenExpired(token)) {
+
+            localStorage.removeItem(
+                'accessToken',
+            );
+
+            return;
+        }
+
+        window.location.href =
+            '/playgrounds';
+
+    }, []);
 
     useEffect(() => {
         async function loadPictos() {
