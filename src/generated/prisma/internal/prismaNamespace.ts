@@ -753,7 +753,8 @@ export const UserScalarFieldEnum = {
   status: 'status',
   consentVersion: 'consentVersion',
   consentAcceptedAt: 'consentAcceptedAt',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  secondConfirmationSentAt: 'secondConfirmationSentAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]

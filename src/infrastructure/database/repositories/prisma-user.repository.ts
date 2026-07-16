@@ -17,7 +17,8 @@ export class PrismaUserRepository {
       data.status,
       data.consentVersion,
       data.consentAcceptedAt,
-      data.createdAt
+      data.createdAt,
+      data.secondConfirmationSentAt
     );
   }
 
@@ -56,6 +57,9 @@ export class PrismaUserRepository {
 
       update: {
         status: user.getStatus(),
+
+        secondConfirmationSentAt:
+          user.getSecondConfirmationSentAt(),
       },
 
       create: {
@@ -71,7 +75,38 @@ export class PrismaUserRepository {
         consentAcceptedAt: consent.acceptedAt,
 
         createdAt: user.createdAt,
+
+        secondConfirmationSentAt:
+          user.getSecondConfirmationSentAt(),
       },
     });
+  }
+
+  async findPendingOlderThan(
+    durationMs: number,
+  ) {
+
+    const limitDate =
+      new Date(
+        Date.now() - durationMs,
+      );
+
+    const users =
+      await prisma.user.findMany({
+
+        where: {
+          status: 'pending',
+
+          createdAt: {
+            lt: limitDate,
+          },
+        },
+      });
+
+    return users
+      .map((user) =>
+        this.toDomain(user),
+      )
+      .filter(Boolean);
   }
 }

@@ -12,6 +12,7 @@ import { CreateUserUseCase } from '../../application/user/create-user.usecase';
 import { ConfirmEmailUseCase } from '../../application/user/confirm-email.usecase';
 import { RequestOtpUseCase } from '../../application/user/request-otp.usecase';
 import { VerifyOtpUseCase } from '../../application/user/verify-otp.usecase';
+import { ResendPendingAccountsUseCase } from '../../application/user/resend-pending-accounts.usecase';
 
 import { JwtGuard } from '../auth/jwt.guard';
 
@@ -22,6 +23,7 @@ export class UserController {
     private readonly confirmEmailUseCase: ConfirmEmailUseCase,
     private readonly requestOtpUseCase: RequestOtpUseCase,
     private readonly verifyOtpUseCase: VerifyOtpUseCase,
+    private readonly resendPendingAccountsUseCase: ResendPendingAccountsUseCase,
   ) { }
 
   // ✅ Création utilisateur
@@ -55,7 +57,7 @@ export class UserController {
     });
   }
 
-  // ✅ ✅ ✅ ROUTE PROTÉGÉE JWT (IMPORTANT)
+  // ✅ ROUTE PROTÉGÉE JWT (IMPORTANT)
   @UseGuards(JwtGuard)
   @Get('me')
   getMe(@Req() req: any) {
@@ -63,5 +65,16 @@ export class UserController {
       message: 'Access granted ✅',
       userId: req.userId,
     };
+  }
+
+  // ✅ Resend mail to pending accounts
+  @Post(
+    'test/resend-pending',
+  )
+  async resendPending() {
+
+    return this
+      .resendPendingAccountsUseCase
+      .execute();
   }
 }

@@ -10,6 +10,7 @@ export class User {
     private consentVersion: string | null,
     private consentAcceptedAt: Date | null,
     readonly createdAt: Date,
+    private secondConfirmationSentAt?: Date,
   ) { }
 
   activate(): void {
@@ -43,5 +44,15 @@ export class User {
       version: this.consentVersion,
       acceptedAt: this.consentAcceptedAt,
     };
+  }
+
+  markSecondConfirmationSent(): void {
+    this.secondConfirmationSentAt =
+      new Date();
+  }
+  getSecondConfirmationSentAt():
+    Date | undefined {
+
+    return this.secondConfirmationSentAt;
   }
 }

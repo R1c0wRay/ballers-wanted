@@ -12,6 +12,7 @@ import { GetPictosUseCase } from './application/picto/get-pictos.usecase';
 import { ConfirmEmailUseCase } from './application/user/confirm-email.usecase';
 import { RequestOtpUseCase } from './application/user/request-otp.usecase';
 import { VerifyOtpUseCase } from './application/user/verify-otp.usecase';
+import { ResendPendingAccountsUseCase } from './application/user/resend-pending-accounts.usecase';
 
 import { UserRepository } from './infrastructure/database/repositories/user.repository';
 import { PictoRepository } from './infrastructure/database/repositories/picto.repository';
@@ -79,7 +80,7 @@ import { EmailService } from './infrastructure/email/email.service';
       useFactory: (
         userRepo: PrismaUserRepository,
         otpRepo: OtpRepository,
-        tokenRepository : TokenRepository,
+        tokenRepository: TokenRepository,
         emailService: EmailService,
       ) =>
         new RequestOtpUseCase(
@@ -106,6 +107,27 @@ import { EmailService } from './infrastructure/email/email.service';
         jwtService: JwtService
       ) => new VerifyOtpUseCase(userRepo, otpRepo, jwtService),
       inject: [PrismaUserRepository, OtpRepository, JwtService],
+    },
+    // ✅ Send mail to pending accounts
+    {
+      provide: ResendPendingAccountsUseCase,
+
+      useFactory: (
+        userRepo: PrismaUserRepository,
+        tokenRepo: TokenRepository,
+        emailService: EmailService,
+      ) =>
+        new ResendPendingAccountsUseCase(
+          userRepo,
+          tokenRepo,
+          emailService,
+        ),
+
+      inject: [
+        PrismaUserRepository,
+        TokenRepository,
+        EmailService,
+      ],
     },
   ],
 })

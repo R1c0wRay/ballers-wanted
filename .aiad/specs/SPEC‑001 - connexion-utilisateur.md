@@ -90,8 +90,7 @@ Peut être testé en vérifiant que le lien vers la politique de confidentialit�
 
 ### Cas limites (Edge Cases)
 
-- Lien de confirmation jamais cliqué : Le lien de confirmation est valide 5 minutes. Si l'utilisateur ne clique pas dans ce délai, le compte reste en statut pending et les données déjà renseignées (email, pseudo, picto) sont conservées. Une relance automatique par email est envoyée 24 heures après l'inscription avec un nouveau lien valide 5 minutes. Ce mail avertit explicitement l'utilisateur que ses données seront supprimées immédiatement à l'expiration de ce second lien et qu'il devra recommencer l'inscription depuis le début.
-- Second lien de confirmation expiré : Les données du compte pending sont supprimées immédiatement à l'expiration du second lien. L'utilisateur doit recommencer son inscription depuis le début.
+- Lien de confirmation jamais cliqué : Le lien de confirmation est valide 5 minutes. Si l'utilisateur ne clique pas dans ce délai, le compte reste en statut pending et les données déjà renseignées (email, pseudo, picto) sont conservées. Une relance automatique par email est envoyée 24 heures après l'inscription avec un nouveau lien valide 5 minutes.
 - Tentative de création avec un email appartenant à un compte actif : L'application affiche immédiatement un message sur l'écran de création indiquant que cet email est déjà associé à un compte actif.
 - Tentative de création avec un email appartenant à un compte pending :
   Si un lien de confirmation est encore valide : l'application affiche un message informant l'utilisateur qu'un email de finalisation d'inscription lui a déjà été envoyé.
