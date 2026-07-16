@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 
+import { getValidToken, } from '@/lib/auth.utils';
+
 type Picto = {
     id: string;
     label: string;
@@ -11,30 +13,6 @@ type Picto = {
 };
 
 const API_URL = 'http://localhost:3001';
-
-function isTokenExpired(
-    token: string,
-): boolean {
-
-    try {
-
-        const payload =
-            JSON.parse(
-                atob(
-                    token.split('.')[1],
-                ),
-            );
-
-        return (
-            payload.exp * 1000 <
-            Date.now()
-        );
-
-    } catch {
-
-        return true;
-    }
-}
 
 export default function RegisterPage() {
     const [pictos, setPictos] = useState<Picto[]>([]);
@@ -52,56 +30,17 @@ export default function RegisterPage() {
 
     const accountExpired = searchParams.get('expired') === 'true';
 
-    useEffect(() => {
-
-        function isTokenExpired(
-            token: string,
-        ): boolean {
-
-            try {
-
-                const payload =
-                    JSON.parse(
-                        atob(
-                            token.split('.')[1],
-                        ),
-                    );
-
-                return (
-                    payload.exp * 1000 <
-                    Date.now()
-                );
-
-            } catch {
-
-                return true;
-            }
-        }
-
-    }, []);
 
     useEffect(() => {
 
         const token =
-            localStorage.getItem(
-                'accessToken',
-            );
+            getValidToken();
 
-        if (!token) {
-            return;
+        if (token) {
+
+            window.location.href =
+                '/playgrounds';
         }
-
-        if (isTokenExpired(token)) {
-
-            localStorage.removeItem(
-                'accessToken',
-            );
-
-            return;
-        }
-
-        window.location.href =
-            '/playgrounds';
 
     }, []);
 

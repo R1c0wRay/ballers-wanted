@@ -3,32 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
+import { getValidToken, } from '@/lib/auth.utils';
+
 const API_URL = 'http://localhost:3001';
 const BLOCK_DURATION = 20 * 1000;
-
-function isTokenExpired(
-    token: string,
-): boolean {
-
-    try {
-
-        const payload =
-            JSON.parse(
-                atob(
-                    token.split('.')[1],
-                ),
-            );
-
-        return (
-            payload.exp * 1000 <
-            Date.now()
-        );
-
-    } catch {
-
-        return true;
-    }
-}
 
 export default function ConfirmPage() {
 
@@ -64,54 +42,14 @@ export default function ConfirmPage() {
 
     useEffect(() => {
 
-        function isTokenExpired(
-            token: string,
-        ): boolean {
-
-            try {
-
-                const payload =
-                    JSON.parse(
-                        atob(
-                            token.split('.')[1],
-                        ),
-                    );
-
-                return (
-                    payload.exp * 1000 <
-                    Date.now()
-                );
-
-            } catch {
-
-                return true;
-            }
-        }
-
-    }, []);
-
-    useEffect(() => {
-
         const token =
-            localStorage.getItem(
-                'accessToken',
-            );
+            getValidToken();
 
-        if (!token) {
-            return;
+        if (token) {
+
+            window.location.href =
+                '/playgrounds';
         }
-
-        if (isTokenExpired(token)) {
-
-            localStorage.removeItem(
-                'accessToken',
-            );
-
-            return;
-        }
-
-        window.location.href =
-            '/playgrounds';
 
     }, []);
 

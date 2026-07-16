@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+import { getValidToken, logout } from '@/lib/auth.utils';
+
 export default function PlaygroundsPage() {
 
   const [authorized, setAuthorized] =
@@ -10,22 +12,9 @@ export default function PlaygroundsPage() {
   useEffect(() => {
 
     const token =
-      localStorage.getItem(
-        'accessToken',
-      );
+      getValidToken();
 
     if (!token) {
-
-      window.location.href = '/';
-
-      return;
-    }
-
-    if (isTokenExpired(token)) {
-
-      localStorage.removeItem(
-        'accessToken',
-      );
 
       window.location.href = '/';
 
@@ -36,35 +25,9 @@ export default function PlaygroundsPage() {
 
   }, []);
 
-  function isTokenExpired(
-    token: string,
-  ): boolean {
+  function handleLogout() {
 
-    try {
-
-      const payload =
-        JSON.parse(
-          atob(
-            token.split('.')[1],
-          ),
-        );
-
-      return (
-        payload.exp * 1000 <
-        Date.now()
-      );
-
-    } catch {
-
-      return true;
-    }
-  }
-
-  function logout() {
-
-    localStorage.removeItem(
-      'accessToken',
-    );
+    logout();
 
     window.location.href = '/';
   }
@@ -87,7 +50,7 @@ export default function PlaygroundsPage() {
         </p>
 
         <button
-          onClick={logout}
+          onClick={handleLogout}
           className="
             bg-orange-600
             hover:bg-orange-500
