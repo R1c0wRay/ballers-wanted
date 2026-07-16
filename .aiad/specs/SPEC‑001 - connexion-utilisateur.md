@@ -26,8 +26,8 @@ C'est le prérequis absolu de toute l'application. Aucune autre fonctionnalité 
 Peut être testé entièrement en simulant un nouveau joueur qui remplit le formulaire (pseudo + email + picto + consentement RGPD), reçoit l'email de confirmation, clique sur le lien et vérifie qu'il atterrit sur la vue de fréquentation d'un Playground. Fournit une valeur autonome complète : le joueur est identifié et accède à la donnée principale de l'app dès sa première session d'authentification.
 
 **Scénarios d'acceptation** : **(en anglais)**
-1. **Given** a new user opens the app for the first time, **When** they complete the creation form (pseudo + email + picto) in 3 steps maximum and accept the RGPD consent, **Then** a confirmation email is sent to the provided address and the user sees a "check your inbox" confirmation screen.
-2. **Given** a user has submitted the creation form and received a confirmation email, **When** they click the confirmation link, **Then** their account is activated and they are immediately redirected to the Playground frequentation view.
+1. **Given** a new user opens the app for the first time, **When** they complete the creation form (pseudo + email + picto) in 3 steps maximum and accept the RGPD consent, **Then** a confirmation email is sent to the provided address and the user sees a "check your inbox" confirmation message.
+2. **Given** a user has submitted the creation form and received a confirmation email, **When** they click the confirmation link, **Then** their account is activated and they are redirected to the view to ask for an OTP.
 3. **Given** a user submits the creation form with an email already associated with an existing account, **When** the form is submitted, **Then** the system displays an error message indicating the email is already in use, without revealing account details.
 4. **Given** a user submits the creation form with an invalid email format, **When** they attempt to proceed, **Then** the system displays an inline validation error before submission and prevents the form from being sent.
 5. **Given** a user attempts to submit the creation form without selecting a picto, **When** they attempt to proceed, **Then** the system prevents submission and visually indicates the picto field is required.
@@ -64,7 +64,7 @@ Peut être testé indépendamment sur n'importe quel appareil (avec ou sans biom
 
 **Scénarios d'acceptation** : **(en anglais)**
 1. **Given** an existing user selects the OTP login option, **When** they enter their registered email address and submit, **Then** a one-time password is sent to that email and the user sees a "check your inbox" screen.
-2. **Given** a user has received an OTP, **When** they enter the valid OTP within its validity period [NEEDS CLARIFICATION : durée de validité non définie], **Then** they are logged in and redirected to the Playground frequentation view.
+2. **Given** a user has received an OTP, **When** they enter the valid OTP within its validity period of 1 minute, **Then** they are logged in and redirected to the Playground frequentation view.
 3. **Given** a user enters an expired OTP, **When** they submit it, **Then** the system displays an error indicating the code has expired and offers to send a new OTP.
 4. **Given** a user enters an invalid OTP, **When** they submit it, **Then** the system displays an error and offers to resend a new OTP.
 5. **Given** a user enters an unregistered email address in the OTP flow, **When** they submit, **Then** the system displays the generic message "If this email is registered, you will receive a code" without revealing whether the email exists.
@@ -94,20 +94,17 @@ Peut être testé en vérifiant que le lien vers la politique de confidentialit�
 - Tentative de création avec un email appartenant à un compte actif : L'application affiche immédiatement un message sur l'écran de création indiquant que cet email est déjà associé à un compte actif.
 - Tentative de création avec un email appartenant à un compte pending :
   Si un lien de confirmation est encore valide : l'application affiche un message informant l'utilisateur qu'un email de finalisation d'inscription lui a déjà été envoyé.
-  Si aucun lien valide n'est en cours : l'application propose un bouton permettant de régénérer un email de finalisation d'inscription.
+  Si aucun lien valide n'est en cours : un message informe l'utilisateur qu'un nouvel email est envoyé et l'email de finalisation d'inscription est envoyé.
 - Tentative de connexion avec un compte en statut pending :
   Si le lien de confirmation est encore valide : l'utilisateur est informé que son compte est en attente de confirmation et est invité à consulter sa boîte mail.
   Si le lien de confirmation est expiré : un nouveau lien est envoyé et l'utilisateur en est informé.
 - Création de compte — Pseudo déjà pris : La disponibilité du pseudo est vérifiée et signalée à l'utilisateur à la soumission du formulaire.
 - Création de compte — Interruption de session en cours de saisie du formulaire (fermeture de l'application, perte réseau) : Les données déjà saisies dans le formulaire sont conservées et restituées à la réouverture.
 - Confirmation email : 
-  Lien de confirmation cliqué sur le même appareil que celui utilisé pour la création : Le compte est activé et l'utilisateur est automatiquement connecté à l'application.
-  Lien de confirmation cliqué sur un appareil différent : Le compte est activé mais l'utilisateur n'est pas connecté automatiquement. Il doit se connecter manuellement sur l'appareil de son choix.
-  Lien de confirmation cliqué une seconde fois (compte déjà actif) :
-    Sur le même appareil que celui de la création : l'utilisateur arrive directement connecté à l'application.
-    Sur un appareil différent : l'utilisateur est redirigé vers la page de connexion avec un message l'informant que son compte a déjà été activé.
+  Lien de confirmation cliqué : Le compte est activé mais l'utilisateur n'est pas connecté automatiquement. Il doit se connecter manuellement sur l'appareil de son choix en demandant un OTP.
+  Lien de confirmation cliqué une seconde fois (compte déjà actif) : l'utilisateur est redirigé vers la page de connexion avec un message l'informant que son compte a déjà été activé.
 - Échecs répétés de la biométrie : Après 3 tentatives biométriques échouées, l'application redirige automatiquement l'utilisateur vers la méthode d'authentification par OTP.
-- Demandes d'OTP multiples en rafale : Tant qu'un code OTP est en cours de validité (5 minutes), l'utilisateur ne peut pas en générer un nouveau.
+- Demandes d'OTP multiples en rafale : Tant qu'un code OTP est en cours de validité (1 minutes), l'utilisateur ne peut pas en générer un nouveau.
 - Saisies OTP incorrectes répétées : Après 4 saisies OTP incorrectes, la saisie est bloquée pendant 20 secondes. L'utilisateur peut ensuite soumettre une nouvelle demande d'OTP.
 
 ---

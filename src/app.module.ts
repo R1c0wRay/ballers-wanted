@@ -23,8 +23,12 @@ import { JwtService } from './infrastructure/auth/jwt.service';
 
 import { EmailService } from './infrastructure/email/email.service';
 
+import { ScheduleModule } from '@nestjs/schedule';
+import { PendingAccountScheduler } from './infrastructure/schedulers/pending-account.scheduler';
+
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'img'),
       serveRoot: '/img',
@@ -40,6 +44,7 @@ import { EmailService } from './infrastructure/email/email.service';
     OtpRepository,
     JwtService,
     EmailService,
+    PendingAccountScheduler,
 
     // ✅ Create User
     {
