@@ -35,7 +35,7 @@ Peut être testé entièrement en simulant un nouveau joueur qui remplit le form
 
 ---
 
-### User Story 2 - Reconnexion par biométrie (Priorité : P2)
+### User Story 2 - Reconnexion par biométrie (Priorité : P2) - NON IMPLEMENTE. REMIS A PLUS TARD.
 
 Un joueur possédant déjà un compte actif ouvre l'application et se reconnecte en utilisant son empreinte digitale, sans saisir aucune information.
 
