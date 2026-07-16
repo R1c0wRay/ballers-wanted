@@ -180,6 +180,14 @@ export default function ConfirmPage() {
 
                         break;
 
+                    case 'TOKEN_INVALID':
+
+                        setMessage(
+                            '❌ Ce lien de confirmation n’est plus valide. Un email plus récent a déjà été envoyé. Veuillez utiliser le dernier email reçu.'
+                        );
+
+                        return;
+
                     case 'TOKEN_NOT_FOUND':
 
                         setMessage(
