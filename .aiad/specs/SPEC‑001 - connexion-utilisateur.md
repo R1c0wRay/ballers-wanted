@@ -99,7 +99,7 @@ Peut être testé en vérifiant que le lien vers la politique de confidentialit�
 - Tentative de connexion avec un compte en statut pending :
   Si le lien de confirmation est encore valide : l'utilisateur est informé que son compte est en attente de confirmation et est invité à consulter sa boîte mail.
   Si le lien de confirmation est expiré : un nouveau lien est envoyé et l'utilisateur en est informé.
-- Création de compte — Pseudo déjà pris : La disponibilité du pseudo est vérifiée et signalée à l'utilisateur en temps réel, lors de la saisie.
+- Création de compte — Pseudo déjà pris : La disponibilité du pseudo est vérifiée et signalée à l'utilisateur à la soumission du formulaire.
 - Création de compte — Interruption de session en cours de saisie du formulaire (fermeture de l'application, perte réseau) : Les données déjà saisies dans le formulaire sont conservées et restituées à la réouverture.
 - Confirmation email : 
   Lien de confirmation cliqué sur le même appareil que celui utilisé pour la création : Le compte est activé et l'utilisateur est automatiquement connecté à l'application.
@@ -109,7 +109,7 @@ Peut être testé en vérifiant que le lien vers la politique de confidentialit�
     Sur un appareil différent : l'utilisateur est redirigé vers la page de connexion avec un message l'informant que son compte a déjà été activé.
 - Échecs répétés de la biométrie : Après 3 tentatives biométriques échouées, l'application redirige automatiquement l'utilisateur vers la méthode d'authentification par OTP.
 - Demandes d'OTP multiples en rafale : Tant qu'un code OTP est en cours de validité (5 minutes), l'utilisateur ne peut pas en générer un nouveau.
-- Saisies OTP incorrectes répétées : Après 3 saisies OTP incorrectes, le compte est bloqué. L'utilisateur en est informé par email. Il devra cliquer sur un lien de connexion unique contenu dans cet email pour débloquer son compte.
+- Saisies OTP incorrectes répétées : Après 4 saisies OTP incorrectes, la saisie est bloquée pendant 20 secondes. L'utilisateur peut ensuite soumettre une nouvelle demande d'OTP.
 
 ---
 
@@ -152,7 +152,7 @@ Peut être testé en vérifiant que le lien vers la politique de confidentialit�
 - **Token de confirmation email** : Représente le lien de vérification envoyé à la création du compte. Attributs : valeur unique, joueur associé, statut (actif / utilisé / expiré), expiration à 5 minutes
 
 - **Code OTP** : Représente le code à usage unique envoyé pour la reconnexion.
-  Attributs : valeur, joueur associé, statut (actif / utilisé / expiré), expire à 5 minutes.
+  Attributs : valeur, joueur associé, statut (actif / utilisé / expiré), expire à 1 minutes.
 
 ---
 

@@ -322,7 +322,7 @@ export default function ConfirmPage() {
                 setShowRegisterButton(true);
 
                 setMessage(
-                    '❌ Aucun compte actif n’est associé à cette adresse email'
+                    '❌ Si ce compte existe, vous recevrez un email.'
                 );
 
                 break;
