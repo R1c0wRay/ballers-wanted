@@ -16,11 +16,11 @@ Application développée dans le cadre d'un projet AIAD.
 - NestJS
 - TypeScript
 - Prisma
-- PostgreSQL
+- SQLite
 - HTML/CSS/JS (frontend de test)
 
 ## Statut
 
 ✅ Backend validé
 ✅ Flux OTP validé
-🚧 Refonte UI en cours
+✅ Inscription / Connexion validées
